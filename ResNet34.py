@@ -24,7 +24,7 @@ class ResidualBlock(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         
-        if self.downsample is not None or input_channel != output_channel: 
+        if downsample is not None or input_channel != output_channel: 
             self.downsample = nn.Conv2d(input_channel, output_channel, kernel_size=1, stride = stride, bias=False)
             self.downsample_norm = nn.BatchNorm2d(output_channel) 
         
@@ -56,8 +56,8 @@ class ResidualBlockModule(nn.Module):
         super(ResidualBlockModule, self).__init__()
         self.block_nums = block_nums
         self.blocks = []
-        if 
-        self.blocks.append(ResidualBlock(input_channel, output_channel , stride=2)) # first layer for downsampling and changing the channel depth
+        
+        self.blocks.append(ResidualBlock(input_channel, output_channel , stride=2, downsample = True)) # first layer for downsampling and changing the channel depth
         for _ in range(1, block_nums):
             self.blocks.append(ResidualBlock(output_channel, output_channel))
             
