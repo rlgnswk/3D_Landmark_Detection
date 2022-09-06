@@ -7,6 +7,7 @@ import AdaptationNet
 import ResNet34
 import utils
 import data_load
+import visualization
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -99,8 +100,6 @@ def main(args):
             saveUtils.save_log(log)
             writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
             saveUtils.save_model(model, num_epoch)
-            
-
 
 if __name__ == "__main__":
     main(args)
