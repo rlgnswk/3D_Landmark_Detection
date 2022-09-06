@@ -51,7 +51,7 @@ class ResidualBlock(nn.Module):
 
         return out
 
-class ResidualBlockModule(nn.Module):
+'''class ResidualBlockModule(nn.Module):
     def __init__(self, input_channel, output_channel, block_nums, stride=1, downsample=None):
         super(ResidualBlockModule, self).__init__()
         self.block_nums = block_nums
@@ -64,10 +64,24 @@ class ResidualBlockModule(nn.Module):
     def forward(self, x):
 
         for i in range(self.block_nums):
-            print(i)
+            #print(i)
             x = self.blocks[i](x)
         
-        return x
+        return x'''
+
+
+def ResidualBlockModule(input_channel, output_channel, block_nums, stride=1, downsample=None):
+    
+    block_nums = block_nums
+    blocks = []
+    
+    blocks.append(ResidualBlock(input_channel, output_channel , stride=2, downsample = True)) # first layer for downsampling and changing the channel depth
+    for _ in range(1, block_nums):
+        blocks.append(ResidualBlock(output_channel, output_channel))
+
+    return nn.Sequential(*blocks)
+            
+    
 
 class ResNet34(nn.Module):
       def __init__(self, input_channel = 3, output_class = 68):
@@ -121,8 +135,9 @@ if __name__ == '__main__':
     print("########### Size Check ###########")
     
     model = ResNet34()
-    
-    input_x = torch.randn(1, 3, 256, 256)
+    print(model)
+    model.cuda()
+    input_x = torch.randn(1, 3, 256, 256).cuda()
     print("input shape : ", input_x.shape)
 
     output = model(input_x)
