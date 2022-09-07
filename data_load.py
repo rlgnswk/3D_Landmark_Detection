@@ -21,14 +21,19 @@ class FaceLandMark_Loader(Dataset):
 
         # read list of images
         # read list of landmarks
+        # read list of bbox
         self.img_path = os.path.join(root, "img")
         self.ldmks_path = os.path.join(root, "ldmks")
+        self.bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord")
+
         self.img_list = natsort.natsorted(os.listdir(self.img_path))
         self.ldmks_list = natsort.natsorted(os.listdir(self.ldmks_path))
+        self.bbox_list = natsort.natsorted(os.listdir(self.bbox_leftcorner_coord_path))
+
         assert len(self.img_list) == len(self.ldmks_list)
+
         print(img_list[:10])
         print(ldmks_list[:10])
-        
         
         self.std = 0.2
         self.mean = 0
@@ -40,10 +45,14 @@ class FaceLandMark_Loader(Dataset):
         
         # get an image
         # get a landmark info
+        # get a bbox info
         img = Image.open(self.img_path + '/' + self.img_list[idx])
         
-        ldmks = pandas.read_csv(os.path.join(root, "ldmks") +'/'+self.ldmks_list[idx],  header=None, sep=' ')
+        ldmks = pandas.read_csv(self.ldmks_path +'/'+self.ldmks_list[idx],  header=None, sep=' ')
         ldmks = np.asarray(ldmks) # shape : (70, 2), last two row for centers of eyes
+
+        bbox_leftcorner = pandas.read_csv(self.bbox_leftcorner_coord_path +'/'+self.bbox_list[idx],  header=None, sep=' ')
+        bbox_leftcorner = np.asarray(bbox_leftcorner) # shape : (2, 1) # x, y
         
         '''
         Paper:
@@ -84,7 +93,7 @@ if __name__ == '__main__':
     root = "/data2/MS-FaceSynthetic"
     #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
     
-    ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
+    '''ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
     print("len(ldmks_list): ", len(ldmks_list))
 
     ldmks = pandas.read_csv(os.path.join(root, "ldmks") +'/'+ldmks_list[idx],  header=None, sep=' ')
@@ -105,4 +114,14 @@ if __name__ == '__main__':
     plt.imshow(img)
     plt.scatter(ldmks[:-2, 0], ldmks[:-2, 1], s=10, marker='.', c='g')
     plt.savefig('visual_test2.png')
-    #print(np.array(ldmks).shape)
+    #print(np.array(ldmks).shape)'''
+
+    bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord")
+    bbox_list = natsort.natsorted(os.listdir(bbox_leftcorner_coord_path))
+
+    bbox_leftcorner = pandas.read_csv(bbox_leftcorner_coord_path +'/'+bbox_list[idx],  header=None, sep=' ')
+    bbox_leftcorner = np.asarray(bbox_leftcorner) # shape : (2, 1) # x, y
+    print(bbox_leftcorner)
+    print(bbox_leftcorner.shape)
+    print(bbox_leftcorner[0])
+    print(bbox_leftcorner[1])
