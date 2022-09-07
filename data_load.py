@@ -89,7 +89,7 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
 
 
 if __name__ == '__main__':
-    idx = 0
+    idx = 100
     root = "/data2/MS-FaceSynthetic"
     #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
     
@@ -125,8 +125,8 @@ if __name__ == '__main__':
     bbox_leftcorner = np.asarray(bbox_leftcorner) # shape : (2, 1) # x, y
     print(bbox_leftcorner)
     print(bbox_leftcorner.shape)
-    print(bbox_leftcorner[0][0]) # y
-    print(bbox_leftcorner[0][1]) # x
+    print(bbox_leftcorner[0][0]) # x
+    print(bbox_leftcorner[0][1]) # y
     print(type(bbox_leftcorner[0][1]))
     plt.clf()
     '''img_array = np.array(img)
@@ -134,5 +134,5 @@ if __name__ == '__main__':
     cropped_img_array = img_array[bbox_leftcorner[0][0] : bbox_leftcorner[0][0]+256 , bbox_leftcorner[0][1] + bbox_leftcorner[0][1]+256, :]
     print("cropped_img_array.shape: ", cropped_img_array.shape)
     cropped_img = Image.fromarray(cropped_img_array)'''
-    plt.imshow(img.crop((bbox_leftcorner[0][1], bbox_leftcorner[0][0], bbox_leftcorner[0][1]+ 256, bbox_leftcorner[0][0] + 256)))
+    plt.imshow(img.crop((bbox_leftcorner[0][0], bbox_leftcorner[0][1], bbox_leftcorner[0][0]+ 256, bbox_leftcorner[0][1] + 256)))
     plt.savefig('bbox_image.png')
