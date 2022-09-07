@@ -89,7 +89,7 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
 
 
 if __name__ == '__main__':
-    idx = 100
+    idx = 0
     root = "/data2/MS-FaceSynthetic"
     #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
     
@@ -105,6 +105,7 @@ if __name__ == '__main__':
     img = Image.open(img_path + '/' + img_list[idx])
     #print(img.shape)
     print(np.array(img).shape)
+
     '''
     print("ldmks[:, 0].shape: ",ldmks[:, 0].shape)
     plt.imshow(img)
