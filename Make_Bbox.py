@@ -25,8 +25,8 @@ print("total length: ", len(img_list))
         X_mean += 0
         Y_mean += 0
         pass
-    #resp["face_1"]['facial_area'][:2][0] # x coordinate left corner
-    #resp["face_1"]['facial_area'][:2][1] # y coordinate left corner
+    #resp["face_1"]['facial_area'][:2][0] # y coordinate left corner
+    #resp["face_1"]['facial_area'][:2][1] # x coordinate left corner
 
 print("X_mean: ", X_mean / len(img_list))
 print("Y_mean: ", Y_mean / len(img_list))
@@ -42,8 +42,10 @@ for idx in range(len(img_list)):
     file = open(bbox_leftcorner_coord_path + "/" + num_str +"_bbox.txt", "w") 
 
     resp = RetinaFace.detect_faces(img_path = img_path + '/' + img_list[idx])
-    #resp["face_1"]['facial_area'][:2][0] # x coordinate left corner
-    #resp["face_1"]['facial_area'][:2][1] # y coordinate left corner   
+    #print(resp["face_1"]['facial_area'][:2][0])
+    #print(resp["face_1"]['facial_area'][:2][1])
+    #resp["face_1"]['facial_area'][:2][0] # y coordinate left corner
+    #resp["face_1"]['facial_area'][:2][1] # x coordinate left corner   
     
     try:
         #check whether it is detected
@@ -51,16 +53,21 @@ for idx in range(len(img_list)):
 
         #X_extra = 128 - resp["face_1"]['facial_area'][:2][0]
         
-        if resp["face_1"]['facial_area'][0] + 256 > 512:
+        if resp["face_1"]['facial_area'][0] + 256 >= 512:
             resp["face_1"]['facial_area'][0] = 255
-        if resp["face_1"]['facial_area'][1] + 256 > 512:
+        if resp["face_1"]['facial_area'][1] + 256 >= 512:
             resp["face_1"]['facial_area'][1] = 255
-            
-        Y_extra = (256 - resp["face_1"]['facial_area'][:2][1])//2
+        
+        img = Image.open(img_path + '/' + img_list[idx])
+        plt.imshow(img.crop((["face_1"]['facial_area'][1], ["face_1"]['facial_area'][0], ["face_1"]['facial_area'][1]+ 256, ["face_1"]['facial_area'][0] + 256)))
+        plt.savefig('bbox_image_here.png')
+        print("????")
+        exit(0)
+        X_extra = (256 - (resp["face_1"]['facial_area'][3] - resp["face_1"]['facial_area'][1]))//2
 
         file.write(str(resp["face_1"]['facial_area'][0]))
         file.write(" ")
-        file.write(str(resp["face_1"]['facial_area'][1] - Y_extra))
+        file.write(str(resp["face_1"]['facial_area'][1] - X_extra ))
 
     except TypeError:
         #assume center box 

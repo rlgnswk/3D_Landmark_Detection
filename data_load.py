@@ -89,11 +89,11 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
 
 
 if __name__ == '__main__':
-    idx = 5
+    idx = 0
     root = "/data2/MS-FaceSynthetic"
     #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
     
-    '''ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
+    ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
     print("len(ldmks_list): ", len(ldmks_list))
 
     ldmks = pandas.read_csv(os.path.join(root, "ldmks") +'/'+ldmks_list[idx],  header=None, sep=' ')
@@ -103,7 +103,9 @@ if __name__ == '__main__':
     img_path = os.path.join(root, "img")
     img_list = natsort.natsorted(os.listdir(img_path))
     img = Image.open(img_path + '/' + img_list[idx])
-
+    #print(img.shape)
+    print(np.array(img).shape)
+    '''
     print("ldmks[:, 0].shape: ",ldmks[:, 0].shape)
     plt.imshow(img)
     plt.scatter(ldmks[:, 0], ldmks[:, 1], s=10, marker='.', c='g')
@@ -123,5 +125,14 @@ if __name__ == '__main__':
     bbox_leftcorner = np.asarray(bbox_leftcorner) # shape : (2, 1) # x, y
     print(bbox_leftcorner)
     print(bbox_leftcorner.shape)
-    print(bbox_leftcorner[0])
-    print(bbox_leftcorner[1])
+    print(bbox_leftcorner[0][0]) # y
+    print(bbox_leftcorner[0][1]) # x
+    print(type(bbox_leftcorner[0][1]))
+    plt.clf()
+    '''img_array = np.array(img)
+    #print(img_array.shape)
+    cropped_img_array = img_array[bbox_leftcorner[0][0] : bbox_leftcorner[0][0]+256 , bbox_leftcorner[0][1] + bbox_leftcorner[0][1]+256, :]
+    print("cropped_img_array.shape: ", cropped_img_array.shape)
+    cropped_img = Image.fromarray(cropped_img_array)'''
+    plt.imshow(img.crop((bbox_leftcorner[0][1], bbox_leftcorner[0][0], bbox_leftcorner[0][1]+ 256, bbox_leftcorner[0][0] + 256)))
+    plt.savefig('bbox_image.png')
