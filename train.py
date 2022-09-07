@@ -7,7 +7,7 @@ import AdaptationNet
 import ResNet34
 import utils
 import data_load
-import visualization
+
 
 import argparse
 parser = argparse.ArgumentParser()
