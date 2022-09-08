@@ -74,7 +74,7 @@ class FaceLandMark_Loader(Dataset):
 
         #conduct augmentation --> how handle the annotation simultaneously??
 
-        return landmark_GT, input_Image
+        return landmark_GT, input_Image, crop_info
 
     def __len__(self):
         return len(self.img_list)
@@ -93,31 +93,18 @@ if __name__ == '__main__':
     root = "/data2/MS-FaceSynthetic"
     #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
     
-    ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
+    '''ldmks_list = natsort.natsorted(os.listdir(os.path.join(root, "ldmks")))
     print("len(ldmks_list): ", len(ldmks_list))
 
     ldmks = pandas.read_csv(os.path.join(root, "ldmks") +'/'+ldmks_list[idx],  header=None, sep=' ')
     ldmks = np.asarray(ldmks)
-    print("ldmks.shape: ",ldmks.shape)
+    print("ldmks.shape: ",ldmks.shape)'''
     
     img_path = os.path.join(root, "img")
     img_list = natsort.natsorted(os.listdir(img_path))
     img = Image.open(img_path + '/' + img_list[idx])
     #print(img.shape)
     print(np.array(img).shape)
-
-    '''
-    print("ldmks[:, 0].shape: ",ldmks[:, 0].shape)
-    plt.imshow(img)
-    plt.scatter(ldmks[:, 0], ldmks[:, 1], s=10, marker='.', c='g')
-    plt.savefig('visual_test.png')
-    
-    plt.clf()
-    print("ldmks[:-2, 0].shape: ", ldmks[:-2, 0].shape)
-    plt.imshow(img)
-    plt.scatter(ldmks[:-2, 0], ldmks[:-2, 1], s=10, marker='.', c='g')
-    plt.savefig('visual_test2.png')
-    #print(np.array(ldmks).shape)'''
 
     bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord")
     bbox_list = natsort.natsorted(os.listdir(bbox_leftcorner_coord_path))
@@ -130,10 +117,5 @@ if __name__ == '__main__':
     print(bbox_leftcorner[0][1]) # y
     print(type(bbox_leftcorner[0][1]))
     plt.clf()
-    '''img_array = np.array(img)
-    #print(img_array.shape)
-    cropped_img_array = img_array[bbox_leftcorner[0][0] : bbox_leftcorner[0][0]+256 , bbox_leftcorner[0][1] + bbox_leftcorner[0][1]+256, :]
-    print("cropped_img_array.shape: ", cropped_img_array.shape)
-    cropped_img = Image.fromarray(cropped_img_array)'''
     plt.imshow(img.crop((bbox_leftcorner[0][0], bbox_leftcorner[0][1], bbox_leftcorner[0][0]+ 256, bbox_leftcorner[0][1] + 256)))
     plt.savefig('bbox_image.png')

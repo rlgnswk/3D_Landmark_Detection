@@ -13,7 +13,7 @@ X_mean = 0
 Y_mean = 0 
 num_of_None_detection = 0
 print("total length: ", len(img_list))
-bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord")
+bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord") # per-defined floder
 
 for idx in range(len(img_list)):
     print(idx, " ing ...")
