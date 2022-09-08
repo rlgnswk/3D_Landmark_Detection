@@ -13,27 +13,6 @@ X_mean = 0
 Y_mean = 0 
 num_of_None_detection = 0
 print("total length: ", len(img_list))
-'''for idx in range(5000):
-
-    print(idx, " ing ...")
-    resp = RetinaFace.detect_faces(img_path = img_path + '/' + img_list[idx])
-    try:
-        X_mean += resp["face_1"]['facial_area'][2] - resp["face_1"]['facial_area'][0]
-        Y_mean += resp["face_1"]['facial_area'][3] - resp["face_1"]['facial_area'][1]
-    except TypeError:
-        num_of_None_detection +=1
-        X_mean += 0
-        Y_mean += 0
-        pass
-    #resp["face_1"]['facial_area'][:2][0] # y coordinate left corner
-    #resp["face_1"]['facial_area'][:2][1] # x coordinate left corner
-
-print("X_mean: ", X_mean / len(img_list))
-print("Y_mean: ", Y_mean / len(img_list))
-print("num_of_None_detection: ", num_of_None_detection)
-
-
-print("Done")'''
 bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord")
 
 for idx in range(len(img_list)):
@@ -74,7 +53,7 @@ for idx in range(len(img_list)):
     except TypeError:
         num_of_None_detection += 1
         
-        #assume center box 
+        #assume centered box 
         file.write("128")
         file.write(" ")
         file.write("128")
