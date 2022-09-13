@@ -18,9 +18,9 @@ parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldm
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
-parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
+parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
-parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
+#parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
 args = parser.parse_args()
 
@@ -62,7 +62,7 @@ def main(args):
             #print("pred_ladmks.shape: ", pred_ladmks.reshape(args.batchSize, -1 ,2).shape)
             #print("crop_ladmks.shape: ", crop_ladmks[:, :-2].shape)
 
-            train_loss = MSEloss(crop_ladmks[:, :-2], pred_ladmks.reshape(args.batchSize, -1 ,2))
+            train_loss = MSEloss(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
             print_train_loss += train_loss.item()
 
             optimizer4landmark.zero_grad()
@@ -90,7 +90,7 @@ def main(args):
             with torch.no_grad():
                 pred_ladmks = model4Landmark(crop_img)
 
-            print_val_loss += MSEloss(crop_ladmks[:, :-2], pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
+            print_val_loss += MSEloss(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
         
         model4Landmark.train()
         #print, logging, save model per epoch 
@@ -100,7 +100,7 @@ def main(args):
         saveUtils.save_log(log)
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
         saveUtils.save_model(model4Landmark, num_epoch)
-        saveUtils.save_visualization(crop_img, crop_ladmks[:, :-2], pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
+        saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
 
 if __name__ == "__main__":
     main(args)

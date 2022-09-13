@@ -84,7 +84,7 @@ def ResidualBlockModule(input_channel, output_channel, block_nums, stride=1, dow
     
 
 class ResNet34(nn.Module):
-      def __init__(self, input_channel = 3, output_class = 68):
+      def __init__(self, input_channel = 3, output_class = 70):
         super(ResNet34, self).__init__()
         
         self.conv_first = nn.Conv2d(input_channel, 64, kernel_size=7, stride=2, padding=3, bias=False)

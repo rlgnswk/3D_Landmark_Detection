@@ -75,7 +75,7 @@ class FaceLandMark_Loader(Dataset):
         crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
         
         #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
-        is_gray = random.randint(0,1)
+        is_gray = random.randint(0,4) # 25% conduct gray scale
         if is_gray == 1:
             crop_img = self._gray_scaling(crop_img)
         else:
@@ -93,7 +93,6 @@ class FaceLandMark_Loader(Dataset):
         #rotations, perspective warps, < -- landmark also should be changed 
         crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
         crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
-        #conduct augmentation --> how handle the annotation simultaneously??
 
         return np.array(img), ldmks, self.totensor(crop_img),  torch.Tensor(crop_ladmks), bbox_leftcorner
         #return np.array(img), ldmks, crop_img,  crop_ladmks, bbox_leftcorner # for test module(here)
