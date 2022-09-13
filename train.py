@@ -90,9 +90,9 @@ def main(args):
             with torch.no_grad():
                 pred_ladmks = model4Landmark(crop_img)
 
-            print_val_loss += MSEloss(crop_ladmks[:-2], pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
+            print_val_loss += MSEloss(crop_ladmks[:, :-2], pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
         
-        model.train()
+        model4Landmark.train()
         #print, logging, save model per epoch 
         print_val_loss = print_val_loss/len(valid_dataloader)
         log = "Valid: [Epoch %d] [Valid Loss: %.4f]" % (num_epoch, print_val_loss)
