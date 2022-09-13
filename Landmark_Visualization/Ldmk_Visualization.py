@@ -13,7 +13,7 @@ from PIL import Image
 import pandas
 import matplotlib.pyplot as plt
 
-idx = 1 # target image index
+idx = 0 # target image index
 root = "/data2/MS-FaceSynthetic"
 #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
 
