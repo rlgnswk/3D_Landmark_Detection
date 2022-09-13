@@ -1,10 +1,13 @@
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.dataset import random_split
 import torchvision
 import torch
 import torch.nn as nn
 #import torch.nn.functional as F
 import torchvision.transforms.functional as F
+
+
 import math
 import torch.optim as optim
 import os
@@ -38,7 +41,7 @@ class FaceLandMark_Loader(Dataset):
         self.bbox_list = natsort.natsorted(os.listdir(self.bbox_leftcorner_coord_path))
 
         assert len(self.img_list) == len(self.ldmks_list)
-
+        self.totensor = torchvision.transforms.ToTensor()
         #print(self.img_list[:10])
         #print(self.ldmks_list[:10])
          
@@ -92,8 +95,9 @@ class FaceLandMark_Loader(Dataset):
         crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
         #conduct augmentation --> how handle the annotation simultaneously??
 
-        return np.array(img), ldmks, crop_img, crop_ladmks, bbox_leftcorner
-
+        return np.array(img), ldmks, self.totensor(crop_img),  torch.Tensor(crop_ladmks), bbox_leftcorner
+        #return np.array(img), ldmks, crop_img,  crop_ladmks, bbox_leftcorner # for test module(here)
+    
     def __len__(self):
         return len(self.img_list)
 
@@ -152,12 +156,17 @@ class FaceLandMark_Loader(Dataset):
         return crop_img, crop_ladmks
 
 def get_dataloader(dataroot, batch_size, IsSuffle = True):
-    dataset = MotionLoader(dataroot)
+    dataset = FaceLandMark_Loader(dataroot)
     print("# of dataset:", len(dataset))
 
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=IsSuffle, drop_last=True)
+    train_dataset, valid_dataset = random_split(dataset, [int(len(dataset) * 0.80), len(dataset)-int(len(dataset) * 0.80)])
+
+    print("# of train dataset:", len(train_dataset))
+    print("# of valid dataset:", len(valid_dataset))
+    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=False)
    
-    return dataloader, dataset
+    return train_dataloader, valid_dataloader
 
 
 if __name__ == '__main__':

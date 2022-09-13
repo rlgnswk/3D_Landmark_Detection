@@ -5,9 +5,7 @@ import torch
 import sys
 from torchvision.utils import save_image
 import numpy as np
-import matplotlib.pyplot as 
-
-import visualization
+import matplotlib.pyplot as plt
 
 class saveData():
     def __init__(self, args):
@@ -48,7 +46,7 @@ class saveData():
             model.state_dict(),
             self.save_dir_model + '/model_' + str(epoch) + '.pt')
 
-    def save_visualization(self, image, landmark, landmark_GT, saveUtils, num_for_visual = 5)
+    def save_visualization(self, image, landmark, landmark_GT, saveUtils, num_for_visual = 5):
 
         for i in range(num_for_visual):
             pred_visual = make_image(image, landmark)

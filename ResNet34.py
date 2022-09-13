@@ -98,7 +98,7 @@ class ResNet34(nn.Module):
         self.RBM4 = ResidualBlockModule(256, 512, 3)
 
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc_final = nn.Linear(512, output_class)
+        self.fc_final = nn.Linear(512, output_class * 2) # x, y coordinate
 
         #initialization
         for m in self.modules():
