@@ -72,6 +72,7 @@ class FaceLandMark_Loader(Dataset):
         crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
         
         #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
+        is_gray = random.randint(0,1)
         if is_gray == True:
             self._gray_scaling(crop_img)
         else:
@@ -91,7 +92,7 @@ class FaceLandMark_Loader(Dataset):
         crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
         #conduct augmentation --> how handle the annotation simultaneously??
 
-        return np.array(img), landmark_GT, crop_img, crop_ladmks, bbox_leftcorner
+        return np.array(img), ldmks, crop_img, crop_ladmks, bbox_leftcorner
 
     def __len__(self):
         return len(self.img_list)
@@ -160,6 +161,43 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
 
 
 if __name__ == '__main__':
+    
+    root = "/data2/MS-FaceSynthetic"
+
+    #print_all_augmented_images(root)
+    dataset = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
+
+    data_loader = DataLoader(dataset, batch_size=4, shuffle=True, drop_last=True)
+
+    for idx, item in enumerate(data_loader):
+        
+        img_GT, landmark_GT, crop_img, crop_ladmks, bbox_leftcorner = item
+
+        print("img_GT.shape: ", img_GT.shape)
+        print("landmark_GT.shape: ", landmark_GT.shape)
+
+        print("crop_img.shape: ", crop_img.shape)
+        print("crop_ladmks.shape: ", crop_ladmks.shape)
+
+        print("bbox_leftcorner.shape: ", bbox_leftcorner.shape)
+
+        plt.imshow(crop_img[0])
+        plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, :, 1], s=10, marker='.', c='g')
+        plt.savefig('data_load_sample.png')  
+
+        break
+    print("############ Done ############")
+
+
+    
+
+
+
+
+def print_all_augmented_images(root = "/data2/MS-FaceSynthetic"):
+    '''
+    Test function for printing resutls of all augment functions
+    '''
     idx = 0
     root = "/data2/MS-FaceSynthetic"
     temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
@@ -188,7 +226,7 @@ if __name__ == '__main__':
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
     plt.savefig('crop_img.png')  
         
-    '''plt.clf()
+    plt.clf()
     crop_img_adjust_brightness = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
     plt.imshow(crop_img_adjust_brightness)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
@@ -238,7 +276,7 @@ if __name__ == '__main__':
     warp_crop_img, warp_crop_ladmks = temp._perspective_warp(crop_img , crop_ladmks, beta = 1.0)
     plt.imshow(warp_crop_img)
     plt.scatter(warp_crop_ladmks[:, 0], warp_crop_ladmks[:, 1], s=10, marker='.', c='g')
-    plt.savefig('crop_img_warp.png')'''
+    plt.savefig('crop_img_warp.png')
 
     plt.clf()
     augment_image = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5))
