@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 #import torch.nn.functional as F
 import torchvision.transforms.functional as F
-
+import math
 import torch.optim as optim
 import os
 import random
@@ -99,11 +99,13 @@ class FaceLandMark_Loader(Dataset):
         
         rotated_img = crop_img.rotate(angle)
         center = np.array([imgWidth / 2.0, imgHeight / 2.0], dtype=np.float32)
-
+        angle = math.radians(angle)
         c, s = np.cos(angle), np.sin(angle)
         rot_mat = np.array(((c,-s), (s, c)))
+
         #center -> 0 , rotate , zero center -> original center
-        rotated_ladmks = np.matmul(target_center - center, rot) + center
+        
+        rotated_ladmks = np.matmul(crop_ladmks - center, rot_mat) + center
 
         return rotated_img, rotated_ladmks
     
@@ -156,8 +158,7 @@ if __name__ == '__main__':
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
     plt.savefig('crop_img.png')  
         
-    
-    plt.clf()
+    '''plt.clf()
     crop_img_adjust_brightness = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
     plt.imshow(crop_img_adjust_brightness)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
@@ -186,8 +187,20 @@ if __name__ == '__main__':
     
     plt.clf()
     crop_img_noise = np.array(crop_img) + (np.random.randn(256, 256, 3) * 10  + 0.0)
-    print(crop_img_noise[:10])
+    #print(crop_img_noise[:10])
     crop_img_noise = np.clip(crop_img_noise, 0, 255).astype(np.uint8)
     plt.imshow(Image.fromarray(crop_img_noise), vmin=0, vmax=255)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
-    plt.savefig('crop_img_noise.png')
+    plt.savefig('crop_img_noise.png')'''
+
+    plt.clf()
+    rot_crop_img, rot_crop_ladmks = temp._rotate(crop_img , crop_ladmks, angle = 35)
+    plt.imshow(rot_crop_img)
+    plt.scatter(rot_crop_ladmks[:, 0], rot_crop_ladmks[:, 1], s=10, marker='.', c='g')
+    plt.savefig('crop_img_rotate.png')
+
+    plt.clf()
+    warp_crop_img, warp_crop_ladmks = temp._perspective_warp(crop_img , crop_ladmks, beta = 1.0)
+    plt.imshow(warp_crop_img)
+    plt.scatter(warp_crop_ladmks[:, 0], warp_crop_ladmks[:, 1], s=10, marker='.', c='g')
+    plt.savefig('crop_img_warp.png')
