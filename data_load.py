@@ -42,9 +42,6 @@ class FaceLandMark_Loader(Dataset):
         #print(self.img_list[:10])
         #print(self.ldmks_list[:10])
          
-        self.std = 0.2
-        self.mean = 0
-
         #using augmentation functions which do not effect on landmarks position 
     def __getitem__(self, idx):
         
@@ -73,18 +70,28 @@ class FaceLandMark_Loader(Dataset):
         #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
         crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
-        crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
-        crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
-        crop_img = crop_img + torch.randn(crop_img.size()) * self.std + self.mean 
         
+        #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
+        if is_gray == True:
+            self._gray_scaling(crop_img)
+        else:
+            crop_img = np.array(crop_img)
+
+        #Add Noise
+        #crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
+        crop_img = np.array(crop_img) + (np.random.randn(256, 256, 3) * random.randint(0, 5))
+        crop_img = np.clip(crop_img, 0, 255).astype(np.uint8)
+
+        #Blur
+        #crop_img = crop_img + torch.randn(crop_img.size()) * self.std + self.mean  
+        crop_img = cv2.GaussianBlur(crop_img, (0, 0), 0.1) # array input
+
         #rotations, perspective warps, < -- landmark also should be changed 
-
-        crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks)
-        crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks)
-
+        crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
+        crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
         #conduct augmentation --> how handle the annotation simultaneously??
 
-        return landmark_GT, crop_img, bbox_leftcorner
+        return np.array(img), landmark_GT, crop_img, crop_ladmks, bbox_leftcorner
 
     def __len__(self):
         return len(self.img_list)
@@ -95,21 +102,44 @@ class FaceLandMark_Loader(Dataset):
         ldmks = ldmks - [bbox_leftcorner[0][0] ,bbox_leftcorner[0][1]]
         return ldmks
 
-    def _rotate(self, crop_img, crop_ladmks, angle = 0, imgWidth =256, imgHeight =256):
+    def _gray_scaling(self, crop_img):
+        '''
+        input : PIL_img
+        return 3-channel gray img
+        '''
+        crop_img_rgb_to_grayscale = ImageOps.grayscale(crop_img)
+        crop_img_rgb_to_grayscale = np.expand_dims(np.array(crop_img_rgb_to_grayscale), axis = -1)
+        crop_img_rgb_to_grayscale = np.concatenate((crop_img_rgb_to_grayscale, crop_img_rgb_to_grayscale, crop_img_rgb_to_grayscale), axis = 2)
         
-        rotated_img = crop_img.rotate(angle)
-        center = np.array([imgWidth / 2.0, imgHeight / 2.0], dtype=np.float32)
-        angle = math.radians(angle)
-        c, s = np.cos(angle), np.sin(angle)
-        rot_mat = np.array(((c,-s), (s, c)))
+        return crop_img_rgb_to_grayscale
 
+    def _rotate(self, crop_img, crop_ladmks, angle = 0, imgWidth =256, imgHeight =256):
+        '''
+        input : array
+        ouput : array
+
+        conduct rotate
+        '''
+        #rotated_img = crop_img.rotate(angle)
+        crop_img = np.array(crop_img)
+        rad = math.radians(angle)
+        c, s = np.cos(rad), np.sin(rad)
+        rot_mat = np.array(((c,-s), (s, c)))
+        center = np.array([imgWidth / 2.0, imgHeight / 2.0], dtype=np.float32)
         #center -> 0 , rotate , zero center -> original center
         
+        rotated_img = cv2.warpAffine(crop_img, cv2.getRotationMatrix2D(center, angle, 1.0), (imgWidth, imgHeight))
         rotated_ladmks = np.matmul(crop_ladmks - center, rot_mat) + center
 
         return rotated_img, rotated_ladmks
     
     def _perspective_warp(self, crop_img, crop_ladmks, beta = 0.0, imgWidth =256, imgHeight =256):
+        '''
+        input : array
+        ouput : array
+    
+        conduct perspective_warp
+        '''
         crop_img = np.array(crop_img)
         cX = random.uniform(-beta, beta)
         cY = random.uniform(-beta, beta)
@@ -176,12 +206,17 @@ if __name__ == '__main__':
     plt.imshow(crop_img_gaussian_blur)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
     plt.savefig('crop_img_gaussian_blur.png')
-
+    
     plt.clf()
     #crop_img_rgb_to_grayscale = F.rgb_to_grayscale(crop_img, num_output_channels =3)
     crop_img_rgb_to_grayscale = ImageOps.grayscale(crop_img)
     print("crop_img_rgb_to_grayscale.shape: ", np.array(crop_img_rgb_to_grayscale).shape)
-    plt.imshow(crop_img_rgb_to_grayscale, cmap='gray')
+    crop_img_rgb_to_grayscale = np.expand_dims(np.array(crop_img_rgb_to_grayscale), axis = -1)
+    print("crop_img_rgb_to_grayscale.shape: ", np.array(crop_img_rgb_to_grayscale).shape)
+    crop_img_rgb_to_grayscale = np.concatenate((crop_img_rgb_to_grayscale, crop_img_rgb_to_grayscale, crop_img_rgb_to_grayscale), axis = 2)
+    print("crop_img_rgb_to_grayscale.shape: ", np.array(crop_img_rgb_to_grayscale).shape)
+    #plt.imshow(crop_img_rgb_to_grayscale, cmap='gray')
+    plt.imshow(crop_img_rgb_to_grayscale)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
     plt.savefig('crop_img_rgb_to_grayscale.png')
     
@@ -191,10 +226,10 @@ if __name__ == '__main__':
     crop_img_noise = np.clip(crop_img_noise, 0, 255).astype(np.uint8)
     plt.imshow(Image.fromarray(crop_img_noise), vmin=0, vmax=255)
     plt.scatter(crop_ladmks[:, 0], crop_ladmks[:, 1], s=10, marker='.', c='g')
-    plt.savefig('crop_img_noise.png')'''
+    plt.savefig('crop_img_noise.png')
 
     plt.clf()
-    rot_crop_img, rot_crop_ladmks = temp._rotate(crop_img , crop_ladmks, angle = 35)
+    rot_crop_img, rot_crop_ladmks = temp._rotate(crop_img , crop_ladmks, angle = random.randint(0,359))
     plt.imshow(rot_crop_img)
     plt.scatter(rot_crop_ladmks[:, 0], rot_crop_ladmks[:, 1], s=10, marker='.', c='g')
     plt.savefig('crop_img_rotate.png')
@@ -203,4 +238,23 @@ if __name__ == '__main__':
     warp_crop_img, warp_crop_ladmks = temp._perspective_warp(crop_img , crop_ladmks, beta = 1.0)
     plt.imshow(warp_crop_img)
     plt.scatter(warp_crop_ladmks[:, 0], warp_crop_ladmks[:, 1], s=10, marker='.', c='g')
-    plt.savefig('crop_img_warp.png')
+    plt.savefig('crop_img_warp.png')'''
+
+    plt.clf()
+    augment_image = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5))
+    augment_image = F.adjust_contrast(augment_image, contrast_factor = random.uniform(0.5,1.5))
+    
+    #augment_image = augment_image.filter(ImageFilter.GaussianBlur(radius = random.randint(3, 5)))
+    augment_image = cv2.GaussianBlur(np.array(augment_image), (0, 0), 0.1)
+    
+    augment_image = np.array(augment_image) + (np.random.randn(256, 256, 3) * random.randint(0, 5)  + 0.0)
+    #print(crop_img_noise[:10])
+    augment_image = np.clip(augment_image, 0, 255).astype(np.uint8)
+    augment_image = Image.fromarray(augment_image)
+
+    augment_image, augment_ladmks = temp._rotate(augment_image , crop_ladmks, angle = random.randint(0, 90))
+    augment_image, augment_ladmks = temp._perspective_warp(augment_image , augment_ladmks, beta = 0.5)
+
+    plt.imshow(augment_image)
+    plt.scatter(augment_ladmks[:, 0], augment_ladmks[:, 1], s=10, marker='.', c='g')
+    plt.savefig('multi-augmented_image.png')
