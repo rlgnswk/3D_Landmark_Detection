@@ -52,7 +52,7 @@ def main(args):
     print_interval = 100
     for num_epoch in range(args.numEpoch):
         for iter_num, item in enumerate(train_dataloader):
-            
+            print(iter_num)
             img_GT, landmark_GT, crop_img, crop_ladmks, bbox_leftcorner = item
             
             crop_img = crop_img.to(device, dtype=torch.float)
@@ -70,12 +70,12 @@ def main(args):
             optimizer4landmark.step()
 
             #print and logging
-            if iter_num % print_interval == 0 and iter_num != 0:
+            if iter_num % print_interval == 0:
                 print_train_loss = print_train_loss/print_interval
                 log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f]" % (num_epoch, iter_num, print_train_loss)
                 print(log)
                 saveUtils.save_log(log)
-                writer.add_scalar("Train Loss/ iter", train_iter_loss, iter_num)
+                writer.add_scalar("Train Loss/ iter", print_train_loss, iter_num)
                 print_train_loss = 0
             
         #validation
@@ -100,6 +100,7 @@ def main(args):
         saveUtils.save_log(log)
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
         saveUtils.save_model(model4Landmark, num_epoch)
+        saveUtils.save_visualization(crop_img, crop_ladmks[:, :-2], pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
 
 if __name__ == "__main__":
     main(args)

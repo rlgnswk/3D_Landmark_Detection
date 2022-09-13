@@ -46,11 +46,18 @@ class saveData():
             model.state_dict(),
             self.save_dir_model + '/model_' + str(epoch) + '.pt')
 
-    def save_visualization(self, image, landmark, landmark_GT, saveUtils, num_for_visual = 5):
+    def save_visualization(self, crop_img, crop_ladmks, pred_ladmks, num_epoch):
+        
+        crop_img = crop_img.detach().squeeze(1).permute(0,2,1).cpu().numpy()
+        crop_ladmks = crop_ladmks.detach().cpu().numpy()
+        pred_ladmks = pred_ladmks.detach().cpu().numpy()
 
-        for i in range(num_for_visual):
-            pred_visual = make_image(image, landmark)
-            GT_visual = make_image(image, landmark_GT)
+        plt.clf()
+        plt.imshow(crop_img[0])
+        plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, : , 1], s=10, marker='.', c='g')
+        plt.savefig('valid_GT_%d.png'%(num_epoch))
 
-        #save(pred_visual,  )
-        #save(GT_visual,  )
+        plt.clf()
+        plt.imshow(crop_img[0])
+        plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='b')
+        plt.savefig('valid_pred_%d.png'%(num_epoch))

@@ -161,6 +161,8 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
 
     train_dataset, valid_dataset = random_split(dataset, [int(len(dataset) * 0.80), len(dataset)-int(len(dataset) * 0.80)])
 
+    #train_dataset, valid_dataset = random_split(dataset, [8000, 2000])
+
     print("# of train dataset:", len(train_dataset))
     print("# of valid dataset:", len(valid_dataset))
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
