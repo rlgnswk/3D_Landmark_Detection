@@ -73,8 +73,8 @@ class FaceLandMark_Loader(Dataset):
         
         #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
         is_gray = random.randint(0,1)
-        if is_gray == True:
-            self._gray_scaling(crop_img)
+        if is_gray == 1:
+            crop_img = self._gray_scaling(crop_img)
         else:
             crop_img = np.array(crop_img)
 
@@ -186,6 +186,7 @@ if __name__ == '__main__':
         plt.savefig('data_load_sample.png')  
 
         break
+
     print("############ Done ############")
 
 
