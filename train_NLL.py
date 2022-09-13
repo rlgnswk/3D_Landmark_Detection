@@ -17,6 +17,7 @@ parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic"
 parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
+parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
@@ -35,7 +36,12 @@ def main(args):
     writer = SummaryWriter(saveUtils.save_dir_tensorBoard)
 
     #model
-    model4Landmark = ResNet34.ResNet34().to(device)
+    if IsGNLL == True:
+        model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
+        lossFunction = nn.NLLLoss()
+    else:
+        model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
+        lossFunction = nn.MSEloss()
     #model4adaptation = AdaptationNet.AdaptationNet()
     
     # optimizer
@@ -45,8 +51,6 @@ def main(args):
     # data loader
     train_dataloader, valid_dataloader = data_load.get_dataloader(args.datasetPath , args.batchSize)
     
-    MSEloss = nn.MSELoss()
-
     print_train_loss = 0
     print_val_loss = 0 
     print_interval = 10
@@ -62,7 +66,7 @@ def main(args):
             #print("pred_ladmks.shape: ", pred_ladmks.reshape(args.batchSize, -1 ,2).shape)
             #print("crop_ladmks.shape: ", crop_ladmks[:, :-2].shape)
 
-            train_loss = MSEloss(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
+            train_loss = lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
             print_train_loss += train_loss.item()
 
             optimizer4landmark.zero_grad()
@@ -90,7 +94,7 @@ def main(args):
             with torch.no_grad():
                 pred_ladmks = model4Landmark(crop_img)
 
-            print_val_loss += MSEloss(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
+            print_val_loss += lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
         
         model4Landmark.train()
         #print, logging, save model per epoch 

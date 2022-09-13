@@ -84,7 +84,7 @@ def ResidualBlockModule(input_channel, output_channel, block_nums, stride=1, dow
     
 
 class ResNet34(nn.Module):
-      def __init__(self, input_channel = 3, output_class = 70):
+      def __init__(self, input_channel = 3, output_class = 70, output_param = 2):
         super(ResNet34, self).__init__()
         
         self.conv_first = nn.Conv2d(input_channel, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -98,7 +98,7 @@ class ResNet34(nn.Module):
         self.RBM4 = ResidualBlockModule(256, 512, 3)
 
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc_final = nn.Linear(512, output_class * 2) # x, y coordinate
+        self.fc_final = nn.Linear(512, output_class * output_param) # x, y coordinate
 
         #initialization
         for m in self.modules():
