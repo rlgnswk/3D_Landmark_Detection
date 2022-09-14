@@ -33,12 +33,14 @@ def main(args):
     
     #util
     saveUtils = utils.saveData(args)
+    saveUtils.save_log(str(args))
     writer = SummaryWriter(saveUtils.save_dir_tensorBoard)
 
     #model
-    if IsGNLL == True:
+    if args.IsGNLL == True:
         model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
-        lossFunction = nn.NLLLoss()
+        # https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html # output = loss(input, target, var)
+        lossFunction = nn.GaussianNLLLoss()
     else:
         model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
         lossFunction = nn.MSEloss()
@@ -65,8 +67,11 @@ def main(args):
             pred_ladmks = model4Landmark(crop_img)
             #print("pred_ladmks.shape: ", pred_ladmks.reshape(args.batchSize, -1 ,2).shape)
             #print("crop_ladmks.shape: ", crop_ladmks[:, :-2].shape)
-
-            train_loss = lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
+            if args.IsGNLL == True:
+                train_loss = lossFunction(crop_ladmks, pred_ladmks[args.batchSize, :2].reshape(args.batchSize, -1 ,2), pred_ladmks[args.batchSize, 2])
+            else:
+                train_loss = lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
+            
             print_train_loss += train_loss.item()
 
             optimizer4landmark.zero_grad()
@@ -93,8 +98,10 @@ def main(args):
 
             with torch.no_grad():
                 pred_ladmks = model4Landmark(crop_img)
-
-            print_val_loss += lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
+            if args.IsGNLL == True:
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[args.batchSize, :2].reshape(args.batchSize, -1 ,2), pred_ladmks[args.batchSize, 2]).item()
+            else:
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
         
         model4Landmark.train()
         #print, logging, save model per epoch 
@@ -105,6 +112,7 @@ def main(args):
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
         saveUtils.save_model(model4Landmark, num_epoch)
         saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
+        print_val_loss = 0
 
 if __name__ == "__main__":
     main(args)

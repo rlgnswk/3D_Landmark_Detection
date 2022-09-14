@@ -19,7 +19,7 @@ parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
-parser.add_argument('--lr_landmark', type=float, default=0.0001, help='learning rate')
+parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
 args = parser.parse_args()
@@ -103,6 +103,7 @@ def main(args):
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
         saveUtils.save_model(model4Landmark, num_epoch)
         saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
+        print_val_loss = 0
 
 if __name__ == "__main__":
     main(args)
