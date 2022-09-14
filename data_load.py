@@ -69,7 +69,7 @@ class FaceLandMark_Loader(Dataset):
         rotations, perspective warps, < -- landmark also should be changed 
         blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         '''
-        
+
         #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
         crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
@@ -165,7 +165,7 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
     print("# of train dataset:", len(train_dataset))
     print("# of valid dataset:", len(valid_dataset))
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=False)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
    
     return train_dataloader, valid_dataloader
 
