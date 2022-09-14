@@ -19,12 +19,13 @@ parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
-parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
+parser.add_argument('--lr_landmark', type=float, default=0.0001, help='learning rate')
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
 args = parser.parse_args()
 
 def main(args):
+    
     #gpu
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
@@ -32,6 +33,7 @@ def main(args):
     
     #util
     saveUtils = utils.saveData(args)
+    saveUtils.save_log(str(args))
     writer = SummaryWriter(saveUtils.save_dir_tensorBoard)
 
     #model
