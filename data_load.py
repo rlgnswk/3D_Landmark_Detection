@@ -193,7 +193,7 @@ class FaceLandMark_Loader(Dataset):
         #print("new crop_ladmks.shape: ", crop_ladmks.shape)
         return crop_img, crop_ladmks[:,:2]
 
-def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 12):
+def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 18):
     dataset = FaceLandMark_Loader(dataroot)
     print("# of dataset:", len(dataset))
 
