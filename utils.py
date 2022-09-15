@@ -48,7 +48,7 @@ class saveData():
 
     def save_visualization(self, crop_img, crop_ladmks, pred_ladmks, num_epoch):
         
-        crop_img_val = crop_img[0].mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+        crop_img_val = crop_img[0].detach().mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
         crop_ladmks = crop_ladmks.detach().cpu().numpy()
         pred_ladmks = pred_ladmks.detach().cpu().numpy()
 

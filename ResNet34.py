@@ -112,7 +112,7 @@ class ResNet34(nn.Module):
 
         x = self.conv_first(x)
         x = self.bn_first(x)
-        x = self.relu (x)
+        x = self.relu(x)
         x = self.pool_first(x) 
 
         x = self.RBM1(x)
@@ -123,6 +123,7 @@ class ResNet34(nn.Module):
         x = self.avg_pool(x)
         x = torch.flatten(x, 1) # remove 1 X 1 grid and make vector of tensor shape 
         x = self.fc_final(x)
+        #x = self.relu(x) # Becasue the x, y coord and sigma should be positive
         
         return x
 

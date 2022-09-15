@@ -8,7 +8,7 @@ from torch.utils.tensorboard import SummaryWriter
 import AdaptationNet
 import ResNet34
 import utils
-import data_load
+import data_load as data_load
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -19,7 +19,7 @@ parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
-parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
+parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
@@ -30,7 +30,8 @@ def main(args):
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    
+    torch.multiprocessing.set_start_method('spawn') # for using mutli num_workers
+
     #util
     saveUtils = utils.saveData(args)
     saveUtils.save_log(str(args))
@@ -43,7 +44,7 @@ def main(args):
         lossFunction = nn.GaussianNLLLoss()
     else:
         model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
-        lossFunction = nn.MSEloss()
+        lossFunction = nn.MSELoss()
     #model4adaptation = AdaptationNet.AdaptationNet()
     
     # optimizer
@@ -65,12 +66,15 @@ def main(args):
             crop_ladmks = crop_ladmks.to(device, dtype=torch.float)
         
             pred_ladmks = model4Landmark(crop_img)
-            #print("pred_ladmks.shape: ", pred_ladmks.reshape(args.batchSize, -1 ,2).shape)
-            #print("crop_ladmks.shape: ", crop_ladmks[:, :-2].shape)
+            
+            #print("pred_ladmks[args.batchSize, :2].shape: ", pred_ladmks[:, :, :2].reshape(args.batchSize, -1 ,2).shape)
+            #print("crop_ladmks.shape: ", crop_ladmks.shape)
             if args.IsGNLL == True:
-                train_loss = lossFunction(crop_ladmks, pred_ladmks[args.batchSize, :2].reshape(args.batchSize, -1 ,2), pred_ladmks[args.batchSize, 2])
+                pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
+                train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], pred_ladmks[:,:,2])
             else:
-                train_loss = lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2))
+                pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
+                train_loss = lossFunction(crop_ladmks, pred_ladmks)
             
             print_train_loss += train_loss.item()
 
@@ -99,9 +103,11 @@ def main(args):
             with torch.no_grad():
                 pred_ladmks = model4Landmark(crop_img)
             if args.IsGNLL == True:
-                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[args.batchSize, :2].reshape(args.batchSize, -1 ,2), pred_ladmks[args.batchSize, 2]).item()
+                pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], pred_ladmks[:,:,2]).item()
             else:
-                print_val_loss += lossFunction(crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2)).item()
+                pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks).item()
         
         model4Landmark.train()
         #print, logging, save model per epoch 
