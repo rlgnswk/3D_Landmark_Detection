@@ -7,7 +7,7 @@ import torch.nn as nn
 #import torch.nn.functional as F
 import torchvision.transforms.functional as F
 
-
+from torchvision.utils import save_image
 import math
 import torch.optim as optim
 import os
@@ -72,7 +72,7 @@ class FaceLandMark_Loader(Dataset):
         rotations, perspective warps, < -- landmark also should be changed 
         blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         '''
-        crop_img = self.totensor(crop_img).gpu()
+        crop_img = self.totensor(crop_img).cuda()
         #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
         crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
@@ -201,8 +201,12 @@ if __name__ == '__main__':
         print("crop_ladmks.shape: ", crop_ladmks.shape)
 
         print("bbox_leftcorner.shape: ", bbox_leftcorner.shape)
-
-        plt.imshow(crop_img[0])
+         
+        #crop_img_result = crop_img[0]cpu().numpy()
+        # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
+        crop_img_result = crop_img[0].mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+        print("crop_img_result.shape: ", crop_img_result.shape)
+        plt.imshow(crop_img_result)
         plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, :, 1], s=10, marker='.', c='g')
         plt.savefig('data_load_sample_test.png')  
 
