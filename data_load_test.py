@@ -204,7 +204,7 @@ if __name__ == '__main__':
 
         plt.imshow(crop_img[0])
         plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, :, 1], s=10, marker='.', c='g')
-        plt.savefig('data_load_sample.png')  
+        plt.savefig('data_load_sample_test.png')  
 
         break
 
