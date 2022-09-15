@@ -222,6 +222,9 @@ if __name__ == '__main__':
         
         img_GT, landmark_GT, crop_img, crop_ladmks, bbox_leftcorner = item
 
+        crop_img = crop_img.cuda()
+        crop_ladmks = crop_ladmks.cuda()
+        #crop_ladmks = crop_ladmks.to(device, dtype=torch.float)
         print("img_GT.shape: ", img_GT.shape)
         print("landmark_GT.shape: ", landmark_GT.shape)
 
@@ -232,7 +235,21 @@ if __name__ == '__main__':
          
         #crop_img_result = crop_img[0]cpu().numpy()
         # Add 0.5 after unnormalizing to [0, 255] to round to nearest integer
+        import utils
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--name', type=str)
+        parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic")
+        parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
+        args = parser.parse_args()
+        saveUtils = utils.saveData(args)
+
+        crop_ladmks = crop_ladmks.cpu()
+
+        saveUtils.save_visualization(crop_img, crop_ladmks, crop_ladmks, 0)
+        
         crop_img_result = crop_img[0].mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+        
         print("crop_img_result.shape: ", crop_img_result.shape)
         plt.imshow(crop_img_result)
         plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, :, 1], s=10, marker='.', c='g')

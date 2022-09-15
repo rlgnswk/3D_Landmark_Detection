@@ -9,6 +9,7 @@ import AdaptationNet
 import ResNet34
 import utils
 import data_load as data_load
+import math
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -71,7 +72,9 @@ def main(args):
             #print("crop_ladmks.shape: ", crop_ladmks.shape)
             if args.IsGNLL == True:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
-                train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], pred_ladmks[:,:,2])
+                #Paper: Rather than directly outputting σ, we predict log σ, and take its exponential to ensure σ is positive
+                #torch.pow(torch.log(torch.nn.functional.relu(pred_ladmks[:,:,2]) + 1e-10)) # add 1e-10 for non-zero log input
+                train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10))
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 train_loss = lossFunction(crop_ladmks, pred_ladmks)
@@ -104,7 +107,7 @@ def main(args):
                 pred_ladmks = model4Landmark(crop_img)
             if args.IsGNLL == True:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
-                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], pred_ladmks[:,:,2]).item()
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10)).item()
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 print_val_loss += lossFunction(crop_ladmks, pred_ladmks).item()
@@ -117,7 +120,10 @@ def main(args):
         saveUtils.save_log(log)
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
         saveUtils.save_model(model4Landmark, num_epoch)
-        saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks.reshape(args.batchSize, -1 ,2), num_epoch)
+        if args.IsGNLL == True:
+            saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks[:, :, :2], num_epoch)
+        else:
+            saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks, num_epoch)
         print_val_loss = 0
 
 if __name__ == "__main__":
