@@ -89,7 +89,7 @@ class FaceLandMark_Loader(Dataset):
         #crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
         #crop_img = np.array(crop_img) + (np.random.randn(256, 256, 3) * random.randint(0, 5))
         #crop_img = np.clip(crop_img, 0, 255).astype(np.uint8)
-        std = 0.1
+        std = 0.01
         crop_img = crop_img + torch.randn_like(crop_img) * std
         
         #Blur
@@ -100,12 +100,12 @@ class FaceLandMark_Loader(Dataset):
         #rotations, perspective warps, < -- landmark also should be changed 
         
         #crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
-        angle = random.randint(0, 90)
+        crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
+
+        angle = random.randint(0, 45)
         crop_img = F.rotate(crop_img, angle)
         crop_ladmks = self._rotate(crop_ladmks, angle = angle)
         
-        #crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
-
         return np.array(img), ldmks, crop_img,  torch.Tensor(crop_ladmks), bbox_leftcorner
         #return np.array(img), ldmks, crop_img,  crop_ladmks, bbox_leftcorner # for test module(here)
     
@@ -155,15 +155,46 @@ class FaceLandMark_Loader(Dataset):
     
         conduct perspective_warp
         '''
-        crop_img = np.array(crop_img)
+        '''crop_img = np.array(crop_img)
         cX = random.uniform(-beta, beta)
         cY = random.uniform(-beta, beta)
         
         shearMat = np.array([[1., cX, 0.], [cY, 1., 0.]], dtype=np.float32)
         crop_img = cv2.warpAffine(crop_img, shearMat, (imgWidth, imgHeight))
-        crop_ladmks = np.matmul(crop_ladmks, (shearMat[:, :2]).transpose())
+        crop_ladmks = np.matmul(crop_ladmks, (shearMat[:, :2]).transpose())'''
+        print(crop_img.shape)
+        _, height, width = crop_img.shape
+        #[x, y]
+        topLeft = [0,0]
+        topRight = [width -1, 0]
+        bottomRight = [width -1, height - 1]
+        bottomLeft = [0, height - 1]
+        origin_pts = [topLeft, topRight, bottomRight, bottomLeft]
+
+        change_range = 30
+        trans_topLeft = [0 + random.randint(0, change_range), 0 + random.randint(0, change_range)]
+        trans_topRight = [width - 1 - random.randint(0, change_range), 0 + random.randint(0, change_range)]
+        trans_bottomRight = [width - 1 - random.randint(0, change_range), height - 1 - random.randint(0, change_range)]
+        trans_bottomLeft = [0 + random.randint(0, change_range), height - 1 - random.randint(0, change_range)]
+        transform_pts = [trans_topLeft, trans_topRight, trans_bottomRight, trans_bottomLeft]
         
-        return crop_img, crop_ladmks
+        print("origin_pts: ", origin_pts)
+        print("transform_pts: ", transform_pts)
+        
+        crop_img = F.perspective(crop_img, origin_pts, transform_pts)
+        mtrx = cv2.getPerspectiveTransform(np.float32(origin_pts), np.float32(transform_pts))
+        print("mtrx.transpose():", mtrx[:2, :].shape)
+        crop_ladmks = np.concatenate((crop_ladmks, np.ones((70,1))), axis = 1)
+        print("crop_ladmks.shape: ", crop_ladmks.shape)
+        
+        #center_3 = np.array([imgWidth / 2.0, imgHeight / 2.0, 0.0], dtype=np.float32)
+        #center_2 = np.array([imgWidth / 2.0, imgHeight / 2.0], dtype=np.float32)
+
+        crop_ladmks = np.matmul(crop_ladmks, mtrx[:, :].transpose()) # =--> x, y, w
+        crop_ladmks[:, 0] = crop_ladmks[:, 0] / crop_ladmks[:, 2]
+        crop_ladmks[:, 1] = crop_ladmks[:, 1] / crop_ladmks[:, 2]
+        print("new crop_ladmks.shape: ", crop_ladmks.shape)
+        return crop_img, crop_ladmks[:,:2]
 
 def get_dataloader(dataroot, batch_size, IsSuffle = True):
     dataset = FaceLandMark_Loader(dataroot)
@@ -177,7 +208,7 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True):
     print("# of valid dataset:", len(valid_dataset))
     train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-   
+    #num_workers
     return train_dataloader, valid_dataloader
 
 
