@@ -48,16 +48,16 @@ class saveData():
 
     def save_visualization(self, crop_img, crop_ladmks, pred_ladmks, num_epoch):
         
-        crop_img = crop_img.detach().squeeze(1).permute(0,2,1).cpu().numpy()
+        crop_img_val = crop_img[0].mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
         crop_ladmks = crop_ladmks.detach().cpu().numpy()
         pred_ladmks = pred_ladmks.detach().cpu().numpy()
 
         plt.clf()
-        plt.imshow(crop_img[0])
+        plt.imshow(crop_img_val[0])
         plt.scatter(crop_ladmks[0, :, 0], crop_ladmks[0, : , 1], s=10, marker='.', c='g')
         plt.savefig('valid_GT_%d.png'%(num_epoch))
 
         plt.clf()
-        plt.imshow(crop_img[0])
+        plt.imshow(crop_img_val[0])
         plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='b')
         plt.savefig('valid_pred_%d.png'%(num_epoch))

@@ -8,7 +8,8 @@ from torch.utils.tensorboard import SummaryWriter
 import AdaptationNet
 import ResNet34
 import utils
-import data_load
+#import data_load_cpu_verion as data_load
+import data_load as data_load
 
 import argparse
 parser = argparse.ArgumentParser()
@@ -18,7 +19,7 @@ parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldm
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
-parser.add_argument('--batchSize', type=int, default=256, help='input batch size for training')
+parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
@@ -30,6 +31,7 @@ def main(args):
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    torch.multiprocessing.set_start_method('spawn')
     
     #util
     saveUtils = utils.saveData(args)
