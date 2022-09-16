@@ -208,6 +208,13 @@ def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 18):
     #num_workers
     return train_dataloader, valid_dataloader
 
+def get_test_dataloader(dataroot, IsSuffle = True, num_workers = 0):
+    dataset = FaceLandMark_Loader(dataroot)
+    print("# of dataset:", len(dataset))
+
+    test_dataloader = DataLoader(train_dataset, batch_size=1, shuffle=True, drop_last=True, num_workers = num_workers)
+    
+    return test_dataloader
 
 if __name__ == '__main__':
     

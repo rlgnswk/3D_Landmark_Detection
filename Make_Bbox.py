@@ -23,7 +23,6 @@ for idx in range(len(img_list)):
     resp = RetinaFace.detect_faces(img_path = img_path + '/' + img_list[idx])
     #print(resp["face_1"]['facial_area']) # [201, 158, 383, 407] -> x1, y1 , x2, y2
     
-
     #resp["face_1"]['facial_area'][:2][0] # y coordinate left corner
     #resp["face_1"]['facial_area'][:2][1] # x coordinate left corner   
     
