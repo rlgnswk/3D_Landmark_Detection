@@ -1,10 +1,13 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim   
+import torch.optim as optim
+import torchvision
 import random
 import os
 from torch.utils.tensorboard import SummaryWriter
+from PIL import Image
 
+import natsort
 from retinaface import RetinaFace
 import matplotlib.pyplot as plt
 
@@ -16,14 +19,16 @@ import math
 
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', type=str)
-parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic")
-parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
+#parser.add_argument('--name', type=str)
+parser.add_argument('--datasetPath', type=str, default=".")
+parser.add_argument('--pertrained', type=str, default='./pretrained/model_26.pt')
+
+parser.add_argument('--saveDir', type=str, default='./test_result')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
 parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
 
-
+args = parser.parse_args()
 
 class test_module():
     def __init__(self, args, device):
@@ -34,6 +39,7 @@ class test_module():
             self.model =  ResNet34.ResNet34(output_param = 3).to(self.device).eval() # x, y, sigma
         else:
             self.model = ResNet34.ResNet34(output_param = 2).to(self.device).eval() # x, y
+        self.model.load_state_dict(torch.load(args.pertrained))
 
         self.root = args.datasetPath
         self.img_dir = os.path.join(self.root, "test_image")
@@ -42,12 +48,13 @@ class test_module():
     def _save_result(self, crop_img, pred_ladmks, image_name, face_num):
         
         plt.clf()
-        plt.imshow(crop_img_val)
+        plt.imshow(crop_img)
+        print(pred_ladmks.shape)
         plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='g')
         #plt.savefig('valid_GT_%d.png'%(num_epoch))
         plt.savefig(self.args.saveDir + '/'+ image_name + '_face_%d.png'%(face_num))
 
-    def _merge4final_image(self, img, results_lst):
+    def _merge4final_image(self, img, results_lst, image_name):
         plt.clf()
         plt.imshow(img)
 
@@ -69,7 +76,7 @@ class test_module():
             
             #size check
             width, height = img.size
-            assert  width < 512 or height < 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
+            assert  width <= 512 or height <= 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
             
             # face detection
             resp = RetinaFace.detect_faces(img_path = img_path)
@@ -103,24 +110,20 @@ class test_module():
                 
                 #inference
                 with torch.no_grad():
-                    pred_ladmks = self.model(crop_img)
+                    pred_ladmks = self.model(crop_img.unsqueeze(0))
 
                 #save individual image
-                crop_img = crop_img[0].mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
-                pred_ladmks = pred_ladmks.cpu().numpy()
-                self._save_result(crop_img, pred_ladmks, self.img_list[iter_num], i):
+                
+                crop_img = crop_img.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+                pred_ladmks = pred_ladmks.reshape(1, -1 ,2).cpu().numpy()
+                self._save_result(crop_img, pred_ladmks, self.img_list[iter_num], i)
                 results_lst.append([left_corner_X, left_corner_Y, pred_ladmks])
             
             #merge with overall image
-            self._merge4final_image(img, results_lst)
-        
-        print("######### One inference is completed #########")
-    return results_lst
+            self._merge4final_image(img, results_lst, self.img_list[iter_num])
+            print("######### One inference is completed #########")
 
-    
-
-
-
+        return results_lst
 
 
 def test(args):
@@ -131,24 +134,14 @@ def test(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     torch.multiprocessing.set_start_method('spawn') # for using mutli num_workers
 
-    test_module = test_module(args, device)
+    test_class = test_module(args, device)
     
-    _ = test_module.inference()
+    _ = test_class.inference()
 
     print("######### Check your result #########")
     print("######### Test Done #########")
     
     # inference 함수로 옮겨야함.
     
-    
-    
-
-    
-
-
-
-
-
-
 if __name__ == "__main__":
     test(args)
