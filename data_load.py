@@ -41,6 +41,7 @@ class FaceLandMark_Loader(Dataset):
         self.bbox_list = natsort.natsorted(os.listdir(self.bbox_leftcorner_coord_path))
 
         assert len(self.img_list) == len(self.ldmks_list)
+        self.IsAug = IsAug
         self.totensor = torchvision.transforms.ToTensor()
         self.greyscale = torchvision.transforms.Grayscale(num_output_channels=3)
         self.blurrer = torchvision.transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 5))
@@ -73,38 +74,39 @@ class FaceLandMark_Loader(Dataset):
         blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         '''
         crop_img = self.totensor(crop_img).cuda()
-        #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
-        crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
-        crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
-        
-        #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
-        is_gray = random.randint(0,4) # 25% conduct gray scale
-        if is_gray == 1:
-            crop_img = self.greyscale(crop_img)
-            #crop_img = self._gray_scaling(crop_img)
-        else:
-            crop_img = crop_img
+        if self.IsAug == True:
+            #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
+            crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
+            crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
+            
+            #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
+            is_gray = random.randint(0,4) # 25% conduct gray scale
+            if is_gray == 1:
+                crop_img = self.greyscale(crop_img)
+                #crop_img = self._gray_scaling(crop_img)
+            else:
+                crop_img = crop_img
 
-        #Add Noise
-        #crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
-        #crop_img = np.array(crop_img) + (np.random.randn(256, 256, 3) * random.randint(0, 5))
-        #crop_img = np.clip(crop_img, 0, 255).astype(np.uint8)
-        std = 0.01
-        crop_img = crop_img + torch.randn_like(crop_img) * std
-        
-        #Blur
-        #crop_img = crop_img + torch.randn(crop_img.size()) * self.std + self.mean  
-        #crop_img = cv2.GaussianBlur(crop_img, (0, 0), 0.1) # array input
-        crop_img = self.blurrer(crop_img)
+            #Add Noise
+            #crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
+            #crop_img = np.array(crop_img) + (np.random.randn(256, 256, 3) * random.randint(0, 5))
+            #crop_img = np.clip(crop_img, 0, 255).astype(np.uint8)
+            std = 0.01
+            crop_img = crop_img + torch.randn_like(crop_img) * std
+            
+            #Blur
+            #crop_img = crop_img + torch.randn(crop_img.size()) * self.std + self.mean  
+            #crop_img = cv2.GaussianBlur(crop_img, (0, 0), 0.1) # array input
+            crop_img = self.blurrer(crop_img)
 
-        #rotations, perspective warps, < -- landmark also should be changed 
-        
-        #crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
-        crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
+            #rotations, perspective warps, < -- landmark also should be changed 
+            
+            #crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
+            crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
 
-        angle = random.randint(0, 45)
-        crop_img = F.rotate(crop_img, angle)
-        crop_ladmks = self._rotate(crop_ladmks, angle = angle)
+            angle = random.randint(0, 45)
+            crop_img = F.rotate(crop_img, angle)
+            crop_ladmks = self._rotate(crop_ladmks, angle = angle)
         
         return np.array(img), ldmks, crop_img,  torch.Tensor(crop_ladmks), bbox_leftcorner
         #return np.array(img), ldmks, crop_img,  crop_ladmks, bbox_leftcorner # for test module(here)
@@ -193,8 +195,8 @@ class FaceLandMark_Loader(Dataset):
         #print("new crop_ladmks.shape: ", crop_ladmks.shape)
         return crop_img, crop_ladmks[:,:2]
 
-def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 18):
-    dataset = FaceLandMark_Loader(dataroot)
+def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 18, IsAug =True):
+    dataset = FaceLandMark_Loader(dataroot, IsAug = IsAug)
     print("# of dataset:", len(dataset))
 
     train_dataset, valid_dataset = random_split(dataset, [int(len(dataset) * 0.80), len(dataset)-int(len(dataset) * 0.80)])

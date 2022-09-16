@@ -18,12 +18,16 @@ parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic"
 parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
-parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
+
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
+
+parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
+parser.add_argument('--IsAug', type=bool, default=True, help='conduct augmentation of not')
+
 args = parser.parse_args()
 
 def main(args):
@@ -53,7 +57,7 @@ def main(args):
     #optimizer4adaptation = torch.optim.Adam(model4adaptation.parameters(), lr=args.lr_adaptation)
     
     # data loader
-    train_dataloader, valid_dataloader = data_load.get_dataloader(args.datasetPath , args.batchSize)
+    train_dataloader, valid_dataloader = data_load.get_dataloader(args.datasetPath , args.batchSize, IsAug = args.IsAug)
     
     print_train_loss = 0
     print_val_loss = 0 
