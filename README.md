@@ -16,8 +16,11 @@ Note: I only conducted a shallow parameter search. Therefore, it may not be the 
 
 ### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` 
 
-### 3. Put your test image at ```<module_path>/test_image/``` 
+### 3. Put your test image at ```<module_path>/test_image/```
+
 (The size of test images should be bigger than 512x512)
+
+### 4. Inference
 
 Take these example commands written below:
 
@@ -41,7 +44,7 @@ python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
 python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
-### 4. The results will save in ```<module_path>/test_result/```
+### 5. The results will save in ```<module_path>/test_result/```
 
 -----------------
 
