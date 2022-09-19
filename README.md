@@ -40,7 +40,7 @@ This project is inspired by these two papers:
 
 ### 1. Download the pretrained weights from [Here]()
 
-### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` (The size of test images should be bigger than 512x512)
+### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` 
 
 ### 3. Put your test image at ```<module_path>/test_image/``` (The size of test images should be bigger than 512x512)
 
@@ -48,8 +48,9 @@ Take these example commands written below:
 
 ```.bash
 #General command
-python test.py --datasetPath <test dataset directory> --pretrained <pretrained weight paht> --saveDir <directory for saving test results>\
-    --gpu <gpu number> --IsGNLL <Whether to use models trained with GNLL loss(boolean, default=False)>\
+python test.py --datasetPath <test dataset directory> --pretrained <pretrained weight paht>\
+    --saveDir <directory for saving test results> --gpu <gpu number>\
+    --IsGNLL <Whether to use models trained with GNLL loss(boolean, default=False)>\
     --modelType <modelType(ResNet34 or MoblieNetv2)>
 
 # Using ResNet34 model trained with MSE loss
@@ -68,5 +69,18 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 ### 4. The results will save in ```<module_path>/test_result/```
 
 -----------------
+
+# Training the model:
+
+## Dataset download:
+
+## make bbox:
+
+## training 
+
+-----------------
+
+# ??
+
 
 
