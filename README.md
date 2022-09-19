@@ -38,7 +38,7 @@ This project is inspired by these two papers:
 
 ## Run on sample data:
 
-Put your test image at ```<module_path>/test_image/``` (Image size should be bigger than 512x512)
+Put your test image at ```<module_path>/test_image/``` (The size of test images should be bigger than 512x512)
 
 Take the command written below:
 
