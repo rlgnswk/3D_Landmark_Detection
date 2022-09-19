@@ -24,7 +24,7 @@ pip install "opencv-python-headless<4.3"
 
 # ==================instruction 
 
-# 3D Landmark detection module (Pytorch)
+# 3D Landmark Detection Module (Pytorch)
 
 This project is inspired by these two papers:
 
@@ -34,30 +34,20 @@ This project is inspired by these two papers:
 
 -----------------
 
-
-
-
-
-----------
-# Usage:
+# Simple usage(Inference):
 
 ## Run on sample data:
-First, the sample data(Degraded Set5) already are placed in ```<ZSRGAN_path>/datasets/MySet5```
 
-The results will save in ```<ZSRGAN_path>/experiments/```
+Put your test image at ```<module_path>/test_image/``` (Image size should be bigger than 512x512)
 
-```
-python train.py --name <save_result_path>
-```
-## Run on your data:
-You can find  dataset 
-from [Here]([https://drive.google.com/file/d/16L961dGynkraoawKE2XyiCh4pdRS-e4Y/view](https://microsoft.github.io/FaceSynthetics/)) 
-
-First, put your data files in ```<ZSRGAN_path>/datasets/```
-
-The results will save in ```<ZSRGAN_path>/experiments/```
+Take the command written below:
 
 ```
-python train.py --name <save_result_path> --dataset <name_of_your_dataset> --GT_path <HR_folder_in_your_dataset> --LR_path <LR_folder_in_your_dataset>
+python test.py
 ```
+
+The results will save in ```<module_path>/test_result/```
+
+-----------------
+
 
