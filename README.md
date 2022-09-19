@@ -1,29 +1,3 @@
-# landmark_detection
-
-
-Implementation Landmark Detection Module 
-
-
-# Reference 
-
-Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)
-
-3D Face Reconstruction with Dense Landmarks (ECCV 2022)
-
-
-# MEMO
-
-pip install pandas
-
-pip install natsort
-
-pip install retina-face
-
-pip install "opencv-python-headless<4.3"
-
-
-# ==================instruction 
-
 # 3D Landmark Detection Module (Pytorch)
 
 The module for "3D" landmark detection using the model trained with synthetic data. Because this is not a "2D" detection, it even predicts the opposite side of the face. This project is inspired by these two papers:
@@ -128,3 +102,18 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 [3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/)
 
 [RetinaFace](https://github.com/serengil/retinaface) for making bounding box
+
+-----------------
+
+# MEMO
+
+pip install pandas
+
+pip install natsort
+
+pip install retina-face
+
+pip install "opencv-python-headless<4.3"
+
+
+
