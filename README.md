@@ -1,36 +1,12 @@
-# landmark_detection
-
-
-Implementation Landmark Detection Module 
-
-
-# Reference 
-
-Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)
-
-3D Face Reconstruction with Dense Landmarks (ECCV 2022)
-
-
-# MEMO
-
-pip install pandas
-
-pip install natsort
-
-pip install retina-face
-
-pip install "opencv-python-headless<4.3"
-
-
-# ==================instruction 
-
 # 3D Landmark Detection Module (Pytorch)
 
-This project is inspired by these two papers:
+The module for "3D" landmark detection using the model trained with synthetic data. Because this is not a "2D" detection, it even predicts the opposite side of the face. This project is inspired by these two papers:
 
-[Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/)
+[Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/) Dataset and Overall pipeline
 
-[3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/)
+[3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/) - GNLL Loss
+
+Note: I only conducted a shallow parameter search. Therefore, it may not be the module that produces the best performance. Please find parameters that make it better
 
 -----------------
 
@@ -40,8 +16,11 @@ This project is inspired by these two papers:
 
 ### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` 
 
-### 3. Put your test image at ```<module_path>/test_image/``` 
+### 3. Put your test image at ```<module_path>/test_image/```
+
 (The size of test images should be bigger than 512x512)
+
+### 4. Inference
 
 Take these example commands written below:
 
@@ -65,17 +44,17 @@ python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
 python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
-### 4. The results will save in ```<module_path>/test_result/```
+### 5. The results will save in ```<module_path>/test_result/```
 
 -----------------
 
 # Training the model:
 
-### 1. Download the Dataset from [Here](https://github.com/microsoft/FaceSynthetics)
+### 1. Download the dataset from [Here](https://github.com/microsoft/FaceSynthetics)
 
-### 2. Make Bounding Box for Training:
+### 2. Make bounding box for training:
 
-#### 2.1 Make Directory named ```bbox_leftcorner_coord``` for Saving Bounding Box Coordinate in Your ```your_dataset/```
+#### 2.1 Make new directory named ```bbox_leftcorner_coord``` for saving bounding box coordinate in your ```your_dataset/```
 
 #### 2.2 Put this command on your prompt 
 
@@ -118,6 +97,26 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 ### 4. The log(model, loss, validation) will save in ```saveDir/```
 
 -----------------
+
+# Reference
+
+[Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/)
+
+[3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/)
+
+[RetinaFace](https://github.com/serengil/retinaface) for making bounding box
+
+-----------------
+
+# MEMO
+
+pip install pandas
+
+pip install natsort
+
+pip install retina-face
+
+pip install "opencv-python-headless<4.3"
 
 
 
