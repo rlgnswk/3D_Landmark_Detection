@@ -37,14 +37,14 @@ class test_module():
         #model
         if self.modelType == "ResNet34":
             if self.IsGNLL == True:
-                model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
+                model4Landmark = ResNet34.ResNet34(output_param = 3).to(self.device) # x, y, sigma
             else:
-                model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
+                model4Landmark = ResNet34.ResNet34(output_param = 2).to(self.device) # x, y
         elif self.modelType == "MoblieNetv2":
             if self.IsGNLL == True:
-                model4Landmark = moblieNetV2.moblieNetV2(output_param = 3).to(device) # x, y, sigma
+                model4Landmark = moblieNetV2.moblieNetV2(output_param = 3).to(self.device) # x, y, sigma
             else:
-                model4Landmark = moblieNetV2.moblieNetV2(output_param = 2).to(device) # x, y
+                model4Landmark = moblieNetV2.moblieNetV2(output_param = 2).to(self.device) # x, y
         else:
             print("There is no proper model type.")
             raise ValueError
@@ -81,11 +81,14 @@ class test_module():
 
             img_path = self.img_dir + '/' + self.img_list[iter_num]
             img = Image.open(img_path)
+            img = img.resize((512, 512))
             
             #size check
             width, height = img.size
-            assert  width <= 512 or height <= 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
-            
+            print("test image width : ", width)
+            print("test image height : ", height)
+            assert  width >= 512 or height >= 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
+            img.save(img_path)
             # face detection
             resp = RetinaFace.detect_faces(img_path = img_path)
             # detection check
@@ -148,7 +151,7 @@ import argparse
 parser = argparse.ArgumentParser()
 #parser.add_argument('--name', type=str)
 parser.add_argument('--datasetPath', type=str, default=".")
-parser.add_argument('--pertrained', type=str, default='./pretrained/model_26.pt')
+parser.add_argument('--pertrained', type=str, default='./pretrained/model_99.pt')
 
 parser.add_argument('--saveDir', type=str, default='./test_result')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
