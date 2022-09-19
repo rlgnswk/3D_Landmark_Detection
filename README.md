@@ -36,13 +36,12 @@ This project is inspired by these two papers:
 
 # Simple usage(Inference):
 
-## Run on sample data:
-
 ### 1. Download the pretrained weights from [Here]()
 
 ### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` 
 
-### 3. Put your test image at ```<module_path>/test_image/``` (The size of test images should be bigger than 512x512)
+### 3. Put your test image at ```<module_path>/test_image/``` 
+(The size of test images should be bigger than 512x512)
 
 Take these example commands written below:
 
@@ -50,7 +49,7 @@ Take these example commands written below:
 #General command
 python test.py --datasetPath <test dataset directory> --pretrained <pretrained weight paht>\
     --saveDir <directory for saving test results> --gpu <gpu number>\
-    --IsGNLL <Whether to use models trained with GNLL loss(boolean, default=False)>\
+    --IsGNLL <whether to use models trained with GNLL loss(boolean, default=False)>\
     --modelType <modelType(ResNet34 or MoblieNetv2)>
 
 # Using ResNet34 model trained with MSE loss
@@ -72,12 +71,46 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 
 # Training the model:
 
-## Dataset download:
+### 1. Download the Dataset from [Here](https://github.com/microsoft/FaceSynthetics)
 
-## make bbox:
+### 2. Make Bounding Box for Training:
 
-## training 
+#### 2.1 Make Directory for Saving Bounding Box Coordinate in Your ```datasetPath/```
 
+#### 2.2 Put this command on your prompt 
+
+```
+python Make_Bbox.py --datasetPath <directory of images>
+```
+
+### 3. Training
+
+Take these example commands written below:
+
+```.bash
+#General command
+python train.py --name <name of the experiment> --datasetPath <test dataset directory>\
+    --saveDir <directory for saving test results> --gpu <gpu number>\
+    --numEpoch <the number of epoch> --batchSize <batch size>\
+    --lr_landmark <learning rate> --print_interval <the interval of the printing log>\
+    --IsGNLL <whether to use models trained with GNLL loss(boolean, default=False)>\
+    --modelType <modelType(ResNet34 or MoblieNetv2)> --IsAug <whether to use augmentation(boolean, default=True)>
+
+# Train with ResNet34 model and MSE loss
+python train.py --name <name of the experiment> --saveDir <directory for saving test results>
+
+# Train with ResNet34 model and GNLL loss
+python train.py --name <name of the experiment> --saveDir <directory for saving test results>\
+                --IsGNLL True
+
+# Using MoblieNetv2 model trained with GNLL loss
+python train.py --name <name of the experiment> --saveDir <directory for saving test results>\ 
+                --modelType MoblieNetv2
+
+# Using MoblieNetv2 model trained with MSE loss without data augmentation
+python train.py --name <name of the experiment> --saveDir <directory for saving test results>\
+                --modelType MoblieNetv2 --IsAug False
+```
 -----------------
 
 # ??
