@@ -5,7 +5,15 @@ from PIL import Image
 from retinaface import RetinaFace
 import matplotlib.pyplot as plt
 
-root = "/data2/MS-FaceSynthetic"
+
+import argparse
+parser = argparse.ArgumentParser()
+#parser.add_argument('--name', type=str)
+parser.add_argument('--datasetPath', type=str, default= "/data2/MS-FaceSynthetic")
+parser.add_argument('--saveDir', type=str, default= "bbox_leftcorner_coord")
+args = parser.parse_args()
+
+root = args.datasetPath
 img_path = os.path.join(root, "img")
 img_list = natsort.natsorted(os.listdir(img_path))
 
@@ -13,7 +21,7 @@ X_mean = 0
 Y_mean = 0 
 num_of_None_detection = 0
 print("total length: ", len(img_list))
-bbox_leftcorner_coord_path = os.path.join(root, "bbox_leftcorner_coord") # per-defined floder
+bbox_leftcorner_coord_path = os.path.join(root, args.saveDir) # per-defined floder
 
 for idx in range(len(img_list)):
     print(idx, " ing ...")
