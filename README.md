@@ -90,7 +90,7 @@ Take these example commands written below:
 ```.bash
 #General command
 python train.py --name <name of the experiment> --datasetPath <test dataset directory>\
-    --saveDir <directory for saving test results> --gpu <gpu number>\
+    --saveDir <directory for saving logging> --gpu <gpu number>\
     --numEpoch <the number of epoch> --batchSize <batch size>\
     --lr_landmark <learning rate> --print_interval <the interval of the printing log>\
     --IsGNLL <whether to use models trained with GNLL loss(boolean, default=False)>\
