@@ -11,6 +11,16 @@ import utils
 import data_load as data_load
 import math
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str)
@@ -25,8 +35,8 @@ parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning r
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
 
-parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
-parser.add_argument('--IsAug', type=bool, default=True, help='conduct augmentation of not')
+parser.add_argument('--IsGNLL', type=str2bool, default=False, help='using GNLL or MSE loss for training')
+parser.add_argument('--IsAug', type=str2bool, default=True, help='conduct augmentation of not')
 
 args = parser.parse_args()
 
@@ -39,6 +49,7 @@ def main(args):
 
     #util
     saveUtils = utils.saveData(args)
+    print(str(args))
     saveUtils.save_log(str(args))
     writer = SummaryWriter(saveUtils.save_dir_tensorBoard)
 
