@@ -28,7 +28,6 @@ parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic"
 parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
-
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
