@@ -78,7 +78,8 @@ def main(args):
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
                 #Paper: Rather than directly outputting σ, we predict log σ, and take its exponential to ensure σ is positive
                 #torch.pow(torch.log(torch.nn.functional.relu(pred_ladmks[:,:,2]) + 1e-10)) # add 1e-10 for non-zero log input
-                train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10))
+                #train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10))
+                train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2]))
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 train_loss = lossFunction(crop_ladmks, pred_ladmks)
@@ -111,7 +112,7 @@ def main(args):
                 pred_ladmks = model4Landmark(crop_img)
             if args.IsGNLL == True:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
-                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10)).item()
+                print_val_loss += train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2])).item()
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 print_val_loss += lossFunction(crop_ladmks, pred_ladmks).item()
