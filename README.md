@@ -75,13 +75,16 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 
 ### 2. Make Bounding Box for Training:
 
-#### 2.1 Make Directory for Saving Bounding Box Coordinate in Your ```datasetPath/```
+#### 2.1 Make Directory named ```bbox_leftcorner_coord``` for Saving Bounding Box Coordinate in Your ```your_dataset/```
 
 #### 2.2 Put this command on your prompt 
 
 ```
 python Make_Bbox.py --datasetPath <directory of images>
 ```
+#### 2.3 The information of the bounding box will be processed 
+
+(Note: Among the 100,000 images, 385 images were not recognized. These images were treated as center crop)
 
 ### 3. Training
 
@@ -111,9 +114,10 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 python train.py --name <name of the experiment> --saveDir <directory for saving test results>\
                 --modelType MoblieNetv2 --IsAug False
 ```
------------------
 
-# ??
+### 4. The log(model, loss, validation) will save in ```saveDir/```
+
+-----------------
 
 
 
