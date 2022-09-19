@@ -17,7 +17,6 @@ idx = 0
 root = "/data2/MS-FaceSynthetic"
 #temp = FaceLandMark_Loader(root = "/data2/MS-FaceSynthetic")
 
-
 img_path = os.path.join(root, "img")
 img_list = natsort.natsorted(os.listdir(img_path))
 img = Image.open(img_path + '/' + img_list[idx])
