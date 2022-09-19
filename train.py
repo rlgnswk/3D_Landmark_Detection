@@ -112,7 +112,7 @@ def main(args):
                 pred_ladmks = model4Landmark(crop_img)
             if args.IsGNLL == True:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
-                print_val_loss += train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2])).item()
+                print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2])).item()
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 print_val_loss += lossFunction(crop_ladmks, pred_ladmks).item()
