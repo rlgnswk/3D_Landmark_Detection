@@ -11,37 +11,45 @@ import natsort
 from retinaface import RetinaFace
 import matplotlib.pyplot as plt
 
+import moblieNetV2
 import AdaptationNet
 import ResNet34
 import utils
 import data_load as data_load
 import math
 
-import argparse
-parser = argparse.ArgumentParser()
-#parser.add_argument('--name', type=str)
-parser.add_argument('--datasetPath', type=str, default=".")
-parser.add_argument('--pertrained', type=str, default='./pretrained/model_26.pt')
-
-parser.add_argument('--saveDir', type=str, default='./test_result')
-parser.add_argument('--gpu', type=str, default='0', help='gpu')
-
-parser.add_argument('--IsGNLL', type=bool, default=False, help='using GNLL or MSE loss for training')
-
-args = parser.parse_args()
-
 class test_module():
-    def __init__(self, args, device):
-        self.args = args
-        self.device = device
-        self.IsGNLL = args.IsGNLL
+    def __init__(self, datasetPath = ".", pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34'):
+        
+        self.device  = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        self.datasetPath = datasetPath
+        self.pertrained = pertrained
+        self.saveDir = saveDir
+        self.modelType = modelType
+        self.IsGNLL = IsGNLL
+        
         if self.IsGNLL == True:
             self.model =  ResNet34.ResNet34(output_param = 3).to(self.device).eval() # x, y, sigma
         else:
             self.model = ResNet34.ResNet34(output_param = 2).to(self.device).eval() # x, y
         self.model.load_state_dict(torch.load(args.pertrained))
 
-        self.root = args.datasetPath
+        #model
+        if self.modelType == "ResNet34":
+            if self.IsGNLL == True:
+                model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
+            else:
+                model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
+        elif self.modelType == "MoblieNetv2":
+            if self.IsGNLL == True:
+                model4Landmark = moblieNetV2.moblieNetV2(output_param = 3).to(device) # x, y, sigma
+            else:
+                model4Landmark = moblieNetV2.moblieNetV2(output_param = 2).to(device) # x, y
+        else:
+            print("There is no proper model type.")
+            raise ValueError
+
+        self.root = self.datasetPath
         self.img_dir = os.path.join(self.root, "test_image")
         self.img_list = natsort.natsorted(os.listdir(self.img_dir))
 
@@ -52,7 +60,7 @@ class test_module():
         print(pred_ladmks.shape)
         plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='g')
         #plt.savefig('valid_GT_%d.png'%(num_epoch))
-        plt.savefig(self.args.saveDir + '/'+ image_name + '_face_%d.png'%(face_num))
+        plt.savefig(self.saveDir + '/'+ image_name + '_face_%d.png'%(face_num))
 
     def _merge4final_image(self, img, results_lst, image_name):
         plt.clf()
@@ -64,7 +72,7 @@ class test_module():
             pred_ladmks = pred_ladmks + [left_corner_X ,left_corner_Y]
             plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='g')
         
-        plt.savefig(self.args.saveDir + '/'+ image_name + '_inference.png')
+        plt.savefig(self.saveDir + '/'+ image_name + '_inference.png')
 
     def inference(self):
         for iter_num, img_name in enumerate(self.img_list):
@@ -125,16 +133,39 @@ class test_module():
 
         return results_lst
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
+
+import argparse
+parser = argparse.ArgumentParser()
+#parser.add_argument('--name', type=str)
+parser.add_argument('--datasetPath', type=str, default=".")
+parser.add_argument('--pertrained', type=str, default='./pretrained/model_26.pt')
+
+parser.add_argument('--saveDir', type=str, default='./test_result')
+parser.add_argument('--gpu', type=str, default='0', help='gpu')
+
+parser.add_argument('--IsGNLL', type=str2bool, default=False, help='using GNLL or MSE loss for training')
+parser.add_argument('--modelType', type=str, default='ResNet34')
+args = parser.parse_args()
 
 def test(args):
 
     #gpu
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
     os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    
     torch.multiprocessing.set_start_method('spawn') # for using mutli num_workers
 
-    test_class = test_module(args, device)
+    test_class = test_module(datasetPath = args.datasetPath , pertrained = args.pertrained, saveDir = args.saveDir, IsGNLL = args.IsGNLL, modelType = args.modelType)
     
     _ = test_class.inference()
 

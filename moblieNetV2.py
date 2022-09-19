@@ -34,9 +34,10 @@ class moblieNetV2(nn.Module):
 
 if __name__ == '__main__':
 
-    model = torchvision.models.mobilenet_v2(num_classes = 70)
-    #print(model)
-
+    model = torchvision.models.mobilenet_v2(num_classes = 70 * 3)
+    print(model)
+    torch.save(model.state_dict(), 'sample.pt')
+    
     '''
     print(model) output ==> 
 
