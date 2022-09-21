@@ -73,7 +73,7 @@ class FaceLandMark_Loader(Dataset):
         rotations, perspective warps, < -- landmark also should be changed 
         blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
         '''
-        crop_img = self.totensor(crop_img).cuda()
+        crop_img = self.totensor(crop_img)
         if self.IsAug == True:
             #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
             crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
