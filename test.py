@@ -238,11 +238,11 @@ def test(args):
 
     test_class = test_module(datasetPath = args.datasetPath , pertrained = args.pertrained, saveDir = args.saveDir, IsGNLL = args.IsGNLL, modelType = args.modelType)
     
-    #_ = test_class.inference()
+    _ = test_class.inference()
 
     #test code level 
 
-    info_1 = test_class.inference_imgFolder(args.datasetPath)
+    '''info_1 = test_class.inference_imgFolder(args.datasetPath)
     print("info_1: ", info_1)
     info_2 = test_class.inference_imgPath("/root/landmark_detection/test_image/000000.png")
     print("info_2: ", info_2)
@@ -250,7 +250,7 @@ def test(args):
     img = Image.open(path)
     img = img.resize((256, 256))
     info_3 = test_class.inference_img(img)
-    print("info_3: ", type(info_3))
+    print("info_3: ", type(info_3))'''
     
     print("######### Check your result #########")
     print("######### Test Done #########")
