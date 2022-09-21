@@ -43,6 +43,8 @@ python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
 python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
+-----------------
+
 ### 5. The results will save in ```<module_path>/test_result/```
 
 # Inference in code
