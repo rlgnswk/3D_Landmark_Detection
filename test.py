@@ -73,6 +73,83 @@ class test_module():
             plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='g')
         
         plt.savefig(self.saveDir + '/'+ image_name + '_inference.png')
+    
+
+    def inference_imgFolder(self, img_dir):
+        img_list = natsort.natsorted(os.listdir(img_dir))
+        result_total_lst = []
+
+        for iter_num, img_name in enumerate(img_list):
+
+            img_path = img_dir + '/' + img_list[iter_num]
+            results_lst = self.inference_imgPath(img_path)
+            result_total_lst.append(results_lst)
+
+        return result_total_lst
+     
+    def inference_imgPath(self, img_path):
+        results_lst = []
+        img = Image.open(img_path)
+        img = img.resize((512, 512)) ##  확인 필요 img pre processing에서 얼굴이 다 담겨야하는데 그렇지않음.
+        #size check
+        width, height = img.size
+        print("test image width : ", width)
+        print("test image height : ", height)
+        assert  width >= 512 or height >= 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
+        img.save(img_path)
+        # face detection
+        resp = RetinaFace.detect_faces(img_path = img_path)
+        # detection check
+        assert len(resp) != 0, "Can not detect face"
+        
+        # Conduct inference up to the number of detected faces
+        for i in range(1, len(resp) + 1):
+            try:
+                if resp["face_"+str(i)]['facial_area'][0] + 256 >= 512:
+                    resp["face_"+str(i)]['facial_area'][0] = 255
+                if resp["face_"+str(i)]['facial_area'][1] + 256 >= 512:
+                    resp["face_"+str(i)]['facial_area'][1] = 255
+                #Usually, the width of the bounding box is smaller than 256. 
+                #Thus, shift X coordinate to proper position for 256x256 bounding box
+                X_extra = (256 - (resp["face_"+str(i)]['facial_area'][2] - resp["face_"+str(i)]['facial_area'][0]))//2
+    
+                left_corner_X = resp["face_"+str(i)]['facial_area'][0]- X_extra
+                left_corner_Y = resp["face_"+str(i)]['facial_area'][1]
+
+            except TypeError:
+                #When there is any error, just assume that bounding box is placed in center of the image
+                print("detection error occur")
+                left_corner_X = 128
+                left_corner_Y = 128
+
+            #crop image
+            crop_img = img.crop((left_corner_X, left_corner_Y, left_corner_X + 256, left_corner_Y + 256))
+            
+            #inference
+            pred_ladmks = self.inference_img(crop_img)
+
+            #save individual image
+            crop_img = crop_img.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
+            pred_ladmks = pred_ladmks.reshape(1, -1 ,2).cpu().numpy()
+            self._save_result(crop_img, pred_ladmks, self.img_list[iter_num], i)
+            results_lst.append([left_corner_X, left_corner_Y, pred_ladmks])
+        
+        #merge with overall image
+        self._merge4final_image(img, results_lst, self.img_list[iter_num])
+        print("######### One inference is completed #########")
+        return results_lst
+    
+    def inference_img(self, crop_img)
+        '''
+        crop_img => PIL image
+        '''
+        width, height = crop_img.size
+        assert  width == 256 and height == 256, "The size of input image must be 256x256 but it is not"
+        crop_img = torchvision.transforms.ToTensor()(crop_img).to(self.device)
+        with torch.no_grad():
+            pred_ladmks = self.model(crop_img.unsqueeze(0))
+        
+        return pred_ladmks
 
     def inference(self):
         for iter_num, img_name in enumerate(self.img_list):
