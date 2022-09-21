@@ -7,6 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 import AdaptationNet
 import ResNet34
+import moblieNetV2
 import utils
 import data_load as data_load
 import math
@@ -35,6 +36,7 @@ parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning r
 #parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
 parser.add_argument('--print_interval', type=int, default=100, help='print interval')
 
+parser.add_argument('--modelType', type=str, default='ResNet34')
 parser.add_argument('--IsGNLL', type=str2bool, default=False, help='using GNLL or MSE loss for training')
 parser.add_argument('--IsAug', type=str2bool, default=True, help='conduct augmentation of not')
 
@@ -54,15 +56,26 @@ def main(args):
     writer = SummaryWriter(saveUtils.save_dir_tensorBoard)
 
     #model
-    if args.IsGNLL == True:
-        model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
-        # https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html # output = loss(input, target, var)
-        lossFunction = nn.GaussianNLLLoss()
+    if args.modelType == "ResNet34":
+        if args.IsGNLL == True:
+            model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
+            # https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html # output = loss(input, target, var)
+            lossFunction = nn.GaussianNLLLoss()
+        else:
+            model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
+            lossFunction = nn.MSELoss()
+    elif args.modelType == "MoblieNetv2":
+        if args.IsGNLL == True:
+            model4Landmark = moblieNetV2.moblieNetV2(output_param = 3).to(device) # x, y, sigma
+            # https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html # output = loss(input, target, var)
+            lossFunction = nn.GaussianNLLLoss()
+        else:
+            model4Landmark = moblieNetV2.moblieNetV2(output_param = 2).to(device) # x, y
+            lossFunction = nn.MSELoss()
     else:
-        model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
-        lossFunction = nn.MSELoss()
-    #model4adaptation = AdaptationNet.AdaptationNet()
-    
+        print("There is no proper model type.")
+        raise ValueError
+
     # optimizer
     optimizer4landmark = torch.optim.Adam(model4Landmark.parameters(), lr=args.lr_landmark)
     #optimizer4adaptation = torch.optim.Adam(model4adaptation.parameters(), lr=args.lr_adaptation)
