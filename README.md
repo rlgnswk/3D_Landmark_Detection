@@ -46,7 +46,9 @@ python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
 python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
-You can also access it at the code level:
+### 5. The results will save in ```<module_path>/test_result/```
+
+## You can also access it at the code level like this:
 
 ```python
 
@@ -81,10 +83,6 @@ info_3 = module.inference_img(your_img) #input: PIL image
 [left_corner_X, left_corner_Y, pred_ladmks]
 '''
 ```
-
-
-
-### 5. The results will save in ```<module_path>/test_result/```
 
 -----------------
 
