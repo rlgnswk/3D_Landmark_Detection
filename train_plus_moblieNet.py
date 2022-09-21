@@ -25,7 +25,8 @@ def str2bool(v):
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--name', type=str)
-parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic")
+parser.add_argument('--datasetPath', type=str, default="/local_data/gihoon")
+#parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic")
 parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
 
