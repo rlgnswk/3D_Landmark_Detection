@@ -75,7 +75,7 @@ info_1 = module.inference_imgFolder(your_img_folder)
 '''
 
 info_2 = module.inference_imgPath(your_img_path)
-'''info_2 - landmarks information for image of your_img_path:
+'''info_2 - landmarks information for an image of your_img_path:
 [
     [pred_ladmks(2D array)], 
     [pred_ladmks],
@@ -83,7 +83,7 @@ info_2 = module.inference_imgPath(your_img_path)
 '''
 
 info_3 = module.inference_img(your_img) #input: PIL image
-'''info_3 - predicted landmark(2D array): 
+'''info_3 - a predicted landmark(2D array): 
 [[x1,y1],[x2,y2]...]
 '''
 
