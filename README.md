@@ -4,9 +4,9 @@
 
 The module for "3D" landmark detection using the model trained with synthetic data. Because this is not a "2D" detection, it even predicts the opposite side of the face. This project is inspired by these two papers:
 
-[Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/) Dataset and Overall pipeline
+Dataset and Overall pipeline from [Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/) 
 
-[3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/) - GNLL Loss
+GNLL Loss from [3D Face Reconstruction with Dense Landmarks (ECCV 2022)](https://microsoft.github.io/DenseLandmarks/)
 
 Note: I only conducted a shallow parameter search. Therefore, it may not be the module that produces the best performance. Please find parameters that make it better
 
