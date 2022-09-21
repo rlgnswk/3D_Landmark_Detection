@@ -19,10 +19,14 @@ import data_load as data_load
 import math
 
 class test_module():
-    def __init__(self, datasetPath = ".", pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34'):
+    def __init__(self, datasetPath = None, pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34'):
         
         self.device  = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        self.datasetPath = datasetPath
+        if datasetPath is not None:
+            self.datasetPath = datasetPath
+            self.root = self.datasetPath
+            self.img_dir = os.path.join(self.root, "test_image")
+            self.img_list = natsort.natsorted(os.listdir(self.img_dir))
         self.pertrained = pertrained
         self.saveDir = saveDir
         self.modelType = modelType
@@ -48,10 +52,6 @@ class test_module():
         else:
             print("There is no proper model type.")
             raise ValueError
-
-        self.root = self.datasetPath
-        self.img_dir = os.path.join(self.root, "test_image")
-        self.img_list = natsort.natsorted(os.listdir(self.img_dir))
 
     def _save_result(self, crop_img, pred_ladmks, image_name, face_num):
         
