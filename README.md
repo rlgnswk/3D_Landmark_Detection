@@ -50,7 +50,7 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 
 # Inference in code
 
-## You can also access it at the code level like this:
+### You can also access it at the code level like this:
 
 ```python
 
