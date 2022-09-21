@@ -1,8 +1,9 @@
 # 3D Landmark Detection Module (Pytorch)
 
+- Validation results:
 ![results](./figs/pred_results.png)
 
-The module for "3D" landmark detection using the model trained with synthetic data. Because this is not a "2D" detection, it even predicts the opposite side of the face. This project is inspired by these two papers:
+The module for "3D" landmark detection(Look at the chin in the figure above) using the model trained with synthetic data. Because this is not a "2D" detection, it even predicts the opposite side of the face. This project is inspired by these two papers:
 
 Dataset and Overall pipeline from [Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/) 
 
