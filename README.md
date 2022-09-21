@@ -46,6 +46,42 @@ python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
 python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
+You can also access it at the code level:
+
+```python
+
+import test as T
+
+module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
+
+info_1 = module.inference_imgFolder(your_img_folder)
+'''info_1 - landmarks information of images in your_img_folder:
+[
+    [
+        [left_corner_X, left_corner_Y, pred_ladmks], 
+        [left_corner_X, left_corner_Y, pred_ladmks],
+        ... ],
+    [
+        [left_corner_X, left_corner_Y, pred_ladmks], 
+        [left_corner_X, left_corner_Y, pred_ladmks],
+        ... ]
+                ]
+'''
+
+info_2 = module.inference_imgPath(your_img_path)
+'''info_2: landmarks information for image of your_img_path
+[
+    [left_corner_X, left_corner_Y, pred_ladmks], 
+    [left_corner_X, left_corner_Y, pred_ladmks],
+    ... ] 
+'''
+
+info_3 = module.inference_img(your_img) #input: PIL image
+# info_3(predicted landmark, tensor): [[left_corner_X, left_corner_Y, pred_ladmks], [left_corner_X, left_corner_Y, pred_ladmks] ,... ]
+```
+
+
+
 ### 5. The results will save in ```<module_path>/test_result/```
 
 -----------------
