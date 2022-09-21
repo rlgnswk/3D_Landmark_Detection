@@ -84,7 +84,10 @@ def main(args):
     train_dataloader, valid_dataloader = data_load.get_dataloader(args.datasetPath , args.batchSize, IsAug = args.IsAug)
     
     print_train_loss = 0
-    print_val_loss = 0 
+    print_train_var = 0
+
+    print_val_loss = 0
+    print_val_var = 0
     print_interval = 10
     for num_epoch in range(args.numEpoch):
         for iter_num, item in enumerate(train_dataloader):
@@ -104,12 +107,13 @@ def main(args):
                 #torch.pow(torch.log(torch.nn.functional.relu(pred_ladmks[:,:,2]) + 1e-10)) # add 1e-10 for non-zero log input
                 #train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.nn.functional.relu(pred_ladmks[:,:,2]).add_(1e-10))
                 train_loss = lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2]))
+                print_train_var += torch.mean(torch.exp(pred_ladmks[:,:,2])).item()
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 train_loss = lossFunction(crop_ladmks, pred_ladmks)
             
             print_train_loss += train_loss.item()
-
+            
             optimizer4landmark.zero_grad()
             train_loss.backward()
             optimizer4landmark.step()
@@ -117,11 +121,19 @@ def main(args):
             #print and logging
             if iter_num % print_interval == 0:
                 print_train_loss = print_train_loss/print_interval
-                log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f]" % (num_epoch, iter_num, print_train_loss)
+                
+                if args.IsGNLL == True:
+                    print_train_var = print_train_var/print_interval
+                    log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f] [Mean var: %.4f]" % (num_epoch, iter_num, print_train_loss, print_train_var)
+                    writer.add_scalar("Train Mean var/ iter", print_train_var, iter_num)
+                else:
+                    log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f]" % (num_epoch, iter_num, print_train_loss)
                 print(log)
                 saveUtils.save_log(log)
                 writer.add_scalar("Train Loss/ iter", print_train_loss, iter_num)
+
                 print_train_loss = 0
+                print_train_var = 0
             
         #validation
         model4Landmark.eval()
@@ -137,6 +149,7 @@ def main(args):
             if args.IsGNLL == True:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,3)# x, y, sigma
                 print_val_loss += lossFunction(crop_ladmks, pred_ladmks[:, :, :2], torch.exp(pred_ladmks[:,:,2])).item()
+                print_val_var += torch.mean(torch.exp(pred_ladmks[:,:,2])).item()
             else:
                 pred_ladmks = pred_ladmks.reshape(args.batchSize, -1 ,2)# x, y
                 print_val_loss += lossFunction(crop_ladmks, pred_ladmks).item()
@@ -144,7 +157,12 @@ def main(args):
         model4Landmark.train()
         #print, logging, save model per epoch 
         print_val_loss = print_val_loss/len(valid_dataloader)
-        log = "Valid: [Epoch %d] [Valid Loss: %.4f]" % (num_epoch, print_val_loss)
+        if args.IsGNLL == True:
+            print_val_var = print_val_var/len(valid_dataloader)
+            log = "Valid: [Epoch %d] [Valid Loss: %.4f] [Mean var: %.4f]" % (num_epoch, print_val_loss, print_val_var)
+            writer.add_scalar("Valid Mean var/ Epoch", print_val_var, num_epoch)
+        else:
+            log = "Valid: [Epoch %d] [Valid Loss: %.4f]" % (num_epoch, print_val_loss)
         print(log)
         saveUtils.save_log(log)
         writer.add_scalar("Valid Loss/ Epoch", print_val_loss, num_epoch)
