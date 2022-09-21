@@ -48,6 +48,8 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 
 ### 5. The results will save in ```<module_path>/test_result/```
 
+# Inference in code
+
 ## You can also access it at the code level like this:
 
 ```python
