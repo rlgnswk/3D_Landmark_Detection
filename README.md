@@ -69,7 +69,7 @@ info_1 = module.inference_imgFolder(your_img_folder)
 '''
 
 info_2 = module.inference_imgPath(your_img_path)
-'''info_2: landmarks information for image of your_img_path
+'''info_2 - landmarks information for image of your_img_path:
 [
     [left_corner_X, left_corner_Y, pred_ladmks], 
     [left_corner_X, left_corner_Y, pred_ladmks],
@@ -77,7 +77,9 @@ info_2 = module.inference_imgPath(your_img_path)
 '''
 
 info_3 = module.inference_img(your_img) #input: PIL image
-# info_3(predicted landmark, tensor): [[left_corner_X, left_corner_Y, pred_ladmks], [left_corner_X, left_corner_Y, pred_ladmks] ,... ]
+'''info_3 - predicted landmark(tensor): 
+[left_corner_X, left_corner_Y, pred_ladmks]
+'''
 ```
 
 
