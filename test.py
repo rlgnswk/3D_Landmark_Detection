@@ -17,15 +17,13 @@ import ResNet34
 import utils
 import data_load as data_load
 import math
-
+import numpy as np
 class test_module():
     def __init__(self, datasetPath = None, pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34'):
         
         self.device  = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
         if datasetPath is not None:
-            self.datasetPath = datasetPath
-            self.root = self.datasetPath
-            self.img_dir = os.path.join(self.root, "test_image")
+            self.img_dir = datasetPath
             self.img_list = natsort.natsorted(os.listdir(self.img_dir))
         self.pertrained = pertrained
         self.saveDir = saveDir
@@ -69,7 +67,7 @@ class test_module():
         for i in range(len(results_lst)):
             left_corner_X, left_corner_Y, pred_ladmks = results_lst[i][0], results_lst[i][1], results_lst[i][2]
             # transfer to coordinate of original image
-            pred_ladmks = pred_ladmks + [left_corner_X ,left_corner_Y]
+            pred_ladmks = pred_ladmks + np.array([left_corner_X ,left_corner_Y]) ## is it right?
             plt.scatter(pred_ladmks[0, :, 0], pred_ladmks[0, : , 1], s=10, marker='.', c='g')
         
         plt.savefig(self.saveDir + '/'+ image_name + '_inference.png')
@@ -93,8 +91,8 @@ class test_module():
         img = img.resize((512, 512)) ##  확인 필요 img pre processing에서 얼굴이 다 담겨야하는데 그렇지않음.
         #size check
         width, height = img.size
-        print("test image width : ", width)
-        print("test image height : ", height)
+        #print("test image width : ", width)
+        #print("test image height : ", height)
         assert  width >= 512 or height >= 512, "Test image is too small for this module. It should be bigger thant 512 x 512"
         img.save(img_path)
         # face detection
@@ -128,18 +126,11 @@ class test_module():
             #inference
             pred_ladmks = self.inference_img(crop_img)
 
-            #save individual image
-            crop_img = crop_img.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to("cpu", torch.uint8).numpy()
-            pred_ladmks = pred_ladmks.reshape(1, -1 ,2).cpu().numpy()
-            self._save_result(crop_img, pred_ladmks, self.img_list[iter_num], i)
-            results_lst.append([left_corner_X, left_corner_Y, pred_ladmks])
+            results_lst.append([pred_ladmks + np.array([left_corner_X ,left_corner_Y])])
         
-        #merge with overall image
-        self._merge4final_image(img, results_lst, self.img_list[iter_num])
-        print("######### One inference is completed #########")
         return results_lst
     
-    def inference_img(self, crop_img)
+    def inference_img(self, crop_img):
         '''
         crop_img => PIL image
         '''
@@ -149,7 +140,7 @@ class test_module():
         with torch.no_grad():
             pred_ladmks = self.model(crop_img.unsqueeze(0))
         
-        return pred_ladmks
+        return pred_ladmks.reshape(-1 ,2).cpu().numpy()
 
     def inference(self):
         for iter_num, img_name in enumerate(self.img_list):
@@ -227,7 +218,7 @@ def str2bool(v):
 import argparse
 parser = argparse.ArgumentParser()
 #parser.add_argument('--name', type=str)
-parser.add_argument('--datasetPath', type=str, default=".")
+parser.add_argument('--datasetPath', type=str, default="./test_image")
 parser.add_argument('--pertrained', type=str, default='./pretrained/model_99.pt')
 
 parser.add_argument('--saveDir', type=str, default='./test_result')
@@ -247,11 +238,22 @@ def test(args):
 
     test_class = test_module(datasetPath = args.datasetPath , pertrained = args.pertrained, saveDir = args.saveDir, IsGNLL = args.IsGNLL, modelType = args.modelType)
     
-    _ = test_class.inference()
+    #_ = test_class.inference()
 
+    #test code level 
+
+    info_1 = test_class.inference_imgFolder(args.datasetPath)
+    print("info_1: ", info_1)
+    info_2 = test_class.inference_imgPath("/root/landmark_detection/test_image/000000.png")
+    print("info_2: ", info_2)
+    path = "/root/landmark_detection/test_image/000000.png"
+    img = Image.open(path)
+    img = img.resize((256, 256))
+    info_3 = test_class.inference_img(img)
+    print("info_3: ", type(info_3))
+    
     print("######### Check your result #########")
     print("######### Test Done #########")
-    
     # inference 함수로 옮겨야함.
     
 if __name__ == "__main__":
