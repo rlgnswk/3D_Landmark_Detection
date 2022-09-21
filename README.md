@@ -58,17 +58,18 @@ python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieN
 import test as T
 
 module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
+# pred_ladmks = [[x1,y1],[x2,y2]...]
 
 info_1 = module.inference_imgFolder(your_img_folder)
 '''info_1 - landmarks information of images in your_img_folder:
 [
     [
-        [left_corner_X(int), left_corner_Y(int), pred_ladmks(2D list)], 
-        [left_corner_X, left_corner_Y, pred_ladmks],
+        [pred_ladmks(2D array)], 
+        [pred_ladmks],
         ... ],
     [
-        [left_corner_X, left_corner_Y, pred_ladmks], 
-        [left_corner_X, left_corner_Y, pred_ladmks],
+        [pred_ladmks], 
+        [pred_ladmks],
         ... ]
                 ]
 '''
@@ -76,15 +77,16 @@ info_1 = module.inference_imgFolder(your_img_folder)
 info_2 = module.inference_imgPath(your_img_path)
 '''info_2 - landmarks information for image of your_img_path:
 [
-    [left_corner_X(int), left_corner_Y(int), pred_ladmks(2D list)], 
-    [left_corner_X, left_corner_Y, pred_ladmks],
+    [pred_ladmks(2D array)], 
+    [pred_ladmks],
     ... ] 
 '''
 
 info_3 = module.inference_img(your_img) #input: PIL image
-'''info_3 - predicted landmark(2D list): 
+'''info_3 - predicted landmark(2D array): 
 [[x1,y1],[x2,y2]...]
 '''
+
 ```
 
 -----------------
