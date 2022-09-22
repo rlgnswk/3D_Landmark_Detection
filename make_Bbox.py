@@ -1,12 +1,16 @@
+'''
+This Code is made for pre-processing 
+the The Face Synthetics dataset published from 
+https://github.com/microsoft/FaceSynthetics
+'''
+
 import natsort
 import os
 from PIL import Image
-
 from retinaface import RetinaFace
 import matplotlib.pyplot as plt
-
-
 import argparse
+
 parser = argparse.ArgumentParser()
 #parser.add_argument('--name', type=str)
 parser.add_argument('--datasetPath', type=str, default= "/data2/MS-FaceSynthetic")
