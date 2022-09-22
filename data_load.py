@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 # https://towardsdatascience.com/face-landmarks-detection-with-pytorch-4b4852f5e9c4
 
 class FaceLandMark_Loader(Dataset):
-    def __init__(self, root, IsAug = True):
+    def __init__(self, root, args, IsAug = True):
         super(FaceLandMark_Loader, self).__init__()
         print("#### MotionLoader ####")
         print("####### load data from {} ######".format(root))
@@ -41,20 +41,27 @@ class FaceLandMark_Loader(Dataset):
         self.bbox_list = natsort.natsorted(os.listdir(self.bbox_leftcorner_coord_path))
 
         assert len(self.img_list) == len(self.ldmks_list)
+        assert len(self.img_list) == len(self.bbox_list)
+
         self.IsAug = IsAug
         self.totensor = torchvision.transforms.ToTensor()
         self.greyscale = torchvision.transforms.Grayscale(num_output_channels=3)
-        self.blurrer = torchvision.transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 5))
-        self.perspective_transformer = torchvision.transforms.RandomPerspective(distortion_scale=0.6, p=0.5)
+        self.blurrer = torchvision.transforms.GaussianBlur\
+                (kernel_size=(args.GaussianBlur_kernel_w, args.GaussianBlur_kernel_h), sigma=(args.GaussianBlur_sigma_min, args.GaussianBlur_sigma_max))
+        self.perspective_transformer = torchvision.transforms.RandomPerspective(distortion_scale=args.perspective_distortion_scale, p=args.perspective_distortion_prob)
+        self.rotation_max_angle = args.rotation_max_angle
+        self.noise_std_scale = args.noise_std_scale
+        self.grayscale_prob = args.grayscale_prob
+
+        self.brightness_factor_min = args.brightness_factor_min
+        self.brightness_factor_max = args.brightness_factor_max
+        self.contrast_factor_min = args.contrast_factor_min
+        self.contrast_factor_max = args.contrast_factor_max
         #print(self.img_list[:10])
         #print(self.ldmks_list[:10])
          
-        #using augmentation functions which do not effect on landmarks position 
     def __getitem__(self, idx):
         
-        # get an image
-        # get a landmark info
-        # get a bbox info
         img = Image.open(self.img_path + '/' + self.img_list[idx])
         
         ldmks = pandas.read_csv(self.ldmks_path +'/'+self.ldmks_list[idx],  header=None, sep=' ')
@@ -67,44 +74,26 @@ class FaceLandMark_Loader(Dataset):
         crop_img = img.crop((bbox_leftcorner[0][0], bbox_leftcorner[0][1], bbox_leftcorner[0][0]+ 256, bbox_leftcorner[0][1] + 256))
         crop_ladmks = self._landmark_processing4crop(ldmks, bbox_leftcorner)
 
-        '''
-        Paper:
-        During training, we perform data augmentation including
-        rotations, perspective warps, < -- landmark also should be changed 
-        blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
-        '''
         crop_img = self.totensor(crop_img)
         if self.IsAug == True:
-            #blurs, modulations to brightness and contrast, addition of noise, and conversion to grayscale. < -- does not be related with landmark
-            crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(0.5,1.5)) # brightness_factor 0(black) ~ 2(white)
-            crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(0.5,1.5)) # contrast_factor 0(solid gray) ~ 2
             
-            #crop_img = F.rgb_to_grayscale(crop_img, num_output_channels =3)
-            is_gray = random.randint(0,4) # 25% conduct gray scale
+            crop_img = F.adjust_brightness(crop_img, brightness_factor = random.uniform(self.brightness_factor_min,self.brightness_factor_max)) # brightness_factor 0(black) ~ 2(white)
+            crop_img = F.adjust_contrast(crop_img, contrast_factor = random.uniform(self.contrast_factor_min,self.contrast_factor_max)) # contrast_factor 0(solid gray) ~ 2
+            
+            is_gray = random.randint(0,self.grayscale_prob) # 25% conduct gray scale
             if is_gray == 1:
                 crop_img = self.greyscale(crop_img)
-                #crop_img = self._gray_scaling(crop_img)
             else:
                 crop_img = crop_img
 
             #Add Noise
-            #crop_img = F.gaussian_blur(crop_img, kernel_size = random.randint(3, 7))
-            #crop_img = np.array(crop_img) + (np.random.randn(256, 256, 3) * random.randint(0, 5))
-            #crop_img = np.clip(crop_img, 0, 255).astype(np.uint8)
-            std = 0.01
-            crop_img = crop_img + torch.randn_like(crop_img) * std
-            
+            crop_img = crop_img + torch.randn_like(crop_img) * self.noise_std_scale
             #Blur
-            #crop_img = crop_img + torch.randn(crop_img.size()) * self.std + self.mean  
-            #crop_img = cv2.GaussianBlur(crop_img, (0, 0), 0.1) # array input
             crop_img = self.blurrer(crop_img)
+            #perspective_warp
+            crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks)
 
-            #rotations, perspective warps, < -- landmark also should be changed 
-            
-            #crop_img, crop_ladmks = self._rotate(crop_img , crop_ladmks, angle = random.randint(0, 90))
-            crop_img, crop_ladmks = self._perspective_warp(crop_img , crop_ladmks, beta = 0.5)
-
-            angle = random.randint(0, 45)
+            angle = random.randint(0, self.rotation_max_angle)
             crop_img = F.rotate(crop_img, angle)
             crop_ladmks = self._rotate(crop_ladmks, angle = angle)
         
@@ -150,20 +139,14 @@ class FaceLandMark_Loader(Dataset):
 
         return rotated_ladmks
     
-    def _perspective_warp(self, crop_img, crop_ladmks, beta = 0.0, imgWidth =256, imgHeight =256):
+    def _perspective_warp(self, crop_img, crop_ladmks, imgWidth =256, imgHeight =256):
         '''
         input : array
         ouput : array
     
         conduct perspective_warp
         '''
-        '''crop_img = np.array(crop_img)
-        cX = random.uniform(-beta, beta)
-        cY = random.uniform(-beta, beta)
-        
-        shearMat = np.array([[1., cX, 0.], [cY, 1., 0.]], dtype=np.float32)
-        crop_img = cv2.warpAffine(crop_img, shearMat, (imgWidth, imgHeight))
-        crop_ladmks = np.matmul(crop_ladmks, (shearMat[:, :2]).transpose())'''
+
         #print(crop_img.shape)
         _, height, width = crop_img.shape
         #[x, y]
@@ -195,19 +178,16 @@ class FaceLandMark_Loader(Dataset):
         #print("new crop_ladmks.shape: ", crop_ladmks.shape)
         return crop_img, crop_ladmks[:,:2]
 
-def get_dataloader(dataroot, batch_size, IsSuffle = True, num_workers = 16, IsAug =True):
-    dataset = FaceLandMark_Loader(dataroot, IsAug = IsAug)
+def get_dataloader(args, IsSuffle = True, num_workers = 16, IsAug =True, train_val_ratio = 0.80):
+    dataset = FaceLandMark_Loader(args.datasetPath, args, IsAug = IsAug)
     print("# of dataset:", len(dataset))
 
-    train_dataset, valid_dataset = random_split(dataset, [int(len(dataset) * 0.80), len(dataset)-int(len(dataset) * 0.80)])
-
-    #train_dataset, valid_dataset = random_split(dataset, [8000, 2000])
+    train_dataset, valid_dataset = random_split(dataset, [int(len(dataset) * train_val_ratio), len(dataset)-int(len(dataset) * train_val_ratio)])
 
     print("# of train dataset:", len(train_dataset))
     print("# of valid dataset:", len(valid_dataset))
-    train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers = num_workers)
-    valid_dataloader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=True, drop_last=True, num_workers = num_workers)
-    #num_workers
+    train_dataloader = DataLoader(train_dataset, batch_size=args.batchSize, shuffle=IsSuffle, drop_last=True, num_workers = num_workers)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=args.batchSize, shuffle=IsSuffle, drop_last=True, num_workers = num_workers)
     return train_dataloader, valid_dataloader
 
 def get_test_dataloader(dataroot, IsSuffle = True, num_workers = 0):

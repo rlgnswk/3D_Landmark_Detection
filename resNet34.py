@@ -3,13 +3,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 '''
+Reference:
+https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py
+'''
+
+'''
 Paper:
 Method We train a ResNet34 [21] with mean squared error loss to directly predict 68 2D landmark coordinates per-image. 
 We use the provided bounding boxes to extract a 256×256 pixel region-of-interest from each image.  ### gihoon : I think it is because of the input size of ResNet34
 The private set has no bounding boxes, so we use a tight crop around landmarks.
 '''
-
-#https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py
 
 class ResidualBlock(nn.Module):
     def __init__(self, input_channel, output_channel, stride=1, downsample=None):

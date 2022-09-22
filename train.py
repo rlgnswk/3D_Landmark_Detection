@@ -23,21 +23,38 @@ def str2bool(v):
 
 import argparse
 parser = argparse.ArgumentParser()
+#logging option
 parser.add_argument('--name', type=str)
 parser.add_argument('--datasetPath', type=str, default="/local_data/gihoon")
-#parser.add_argument('--datasetPath', type=str, default="/data2/MS-FaceSynthetic")
 parser.add_argument('--saveDir', type=str, default='/personal/GiHoonKim/face_ldmk_detection')
+parser.add_argument('--print_interval', type=int, default=100, help='print interval')
+#computing option
 parser.add_argument('--gpu', type=str, default='0', help='gpu')
-
+parser.add_argument('--num_worker', type=int, default=16, help='num_worker')
 parser.add_argument('--numEpoch', type=int, default=120, help='# of epoch')
 parser.add_argument('--batchSize', type=int, default=64, help='input batch size for training')
 parser.add_argument('--lr_landmark', type=float, default=0.001, help='learning rate')
-#parser.add_argument('--lr_adaptation', type=float, default=0.001, help='learning rate')
-parser.add_argument('--print_interval', type=int, default=100, help='print interval')
-
+#training option
 parser.add_argument('--modelType', type=str, default='ResNet34')
 parser.add_argument('--IsGNLL', type=str2bool, default=False, help='using GNLL or MSE loss for training')
 parser.add_argument('--IsAug', type=str2bool, default=True, help='conduct augmentation of not')
+#augmentation option
+parser.add_argument('--IsSuffle', type=str2bool, default=True, help='Using Suffle')
+parser.add_argument('--train_val_ratio', type=float, default=0.80, help='train/validation split rate')
+parser.add_argument('--GaussianBlur_kernel_w', type=int, default=3, help='GaussianBlur_kernel_w')
+parser.add_argument('--GaussianBlur_kernel_h', type=int, default=3, help='GaussianBlur_kernel_h')
+parser.add_argument('--GaussianBlur_sigma_min', type=float, default=0.1, help='GaussianBlur_sigma_min')
+parser.add_argument('--GaussianBlur_sigma_max', type=float, default=5.0, help='GaussianBlur_sigma_max')
+parser.add_argument('--perspective_distortion_scale', type=float, default=0.6, help='perspective_distortion_scale')
+parser.add_argument('--perspective_distortion_prob', type=float, default=0.5, help='perspective_distortion_probability')
+parser.add_argument('--grayscale_prob', type=int, default=4, help='grayscale_probability: 1/grayscale_prob %')
+parser.add_argument('--rotation_max_angle', type=int, default=45, help='rotation_max_angle')
+parser.add_argument('--noise_std_scale', type=float, default=0.1, help='noise_std_scale')
+
+parser.add_argument('--brightness_factor_min', type=float, default=0.5, help='noise_std_scale')
+parser.add_argument('--brightness_factor_max', type=float, default=1.5, help='noise_std_scale')
+parser.add_argument('--contrast_factor_min', type=float, default=0.5, help='noise_std_scale')
+parser.add_argument('--contrast_factor_max', type=float, default=1.5, help='noise_std_scale')
 
 args = parser.parse_args()
 
@@ -80,7 +97,7 @@ def main(args):
     #optimizer4adaptation = torch.optim.Adam(model4adaptation.parameters(), lr=args.lr_adaptation)
     
     # data loader
-    train_dataloader, valid_dataloader = data_load.get_dataloader(args.datasetPath , args.batchSize, IsAug = args.IsAug)
+    train_dataloader, valid_dataloader = data_load.get_dataloader(args , IsSuffle = args.IsSuffle,num_workers = args.num_worker, IsAug = args.IsAug, train_val_ratio =args.train_val_ratio) #(args, IsSuffle = True, num_workers = 16, IsAug =True, train_val_ratio = 0.80)
     
     print_train_loss = 0
     print_train_var = 0
