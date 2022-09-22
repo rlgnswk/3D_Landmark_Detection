@@ -142,7 +142,7 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 
 You can make visualization from the predicted landmarks and test figure.
 
-The visualization function is placed in ```visualization.py```. Check ```def save_result``` and ```def save_result_std``` of it. Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of ```visualization.py```
+The visualization function is placed in ```visualization.py```. Check ```def save_result``` and ```def save_result_std``` of it. Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` in ```visualization.py```
 
 You can also make visualization from test module like:
 
@@ -176,7 +176,7 @@ Here is some good result of our module. Check ```test_image/``` and ```test_resu
 
 # Limitation
 
-Unfortunately, this module is not perfect. Here are some examples of failures. In my opinion, the reasons for failure are: first, out of the dataset (baby face, leftmost), second, face occlusion(middle), and third, face recognition or alignment failure(rightmost).
+Unfortunately, this module is not perfect. Here are some examples of failures. In my opinion, the reasons for failure are: first, out of the distribution of training dataset (baby face, leftmost), second, face occlusion(middle), and third, face recognition or alignment failure(rightmost).
 
 ![results](./figs/Fail_cases.png)
 
