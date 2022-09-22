@@ -31,16 +31,16 @@ python test.py --datasetPath <test dataset directory> --pretrained <pretrained w
     --modelType <modelType(ResNet34 or MoblieNetv2)>
 
 # Using ResNet34 model trained with MSE loss
-python test.py --pretrained resnet_MSE.pt
+python test.py --pretrained your_path/resNet_MSE_120epoch.pt
 
 # Using ResNet34 model trained with GNLL loss
-python test.py --pretrained resnet_GNLL.pt --IsGNLL True
+python test.py --pretrained your_path/resNet_GNLL_120epoch.pt --IsGNLL True
 
 # Using MoblieNetv2 model trained with MSE loss
-python test.py --pretrained moblilenet_MSE.pt --modelType MoblieNetv2
+python test.py --pretrained your_path/moblieNet_MSE_120epoch.pt --modelType MoblieNetv2
 
 # Using MoblieNetv2 model trained with GNLL loss
-python test.py --pretrained moblilenet_GNLL.pt --IsGNLL True --modelType MoblieNetv2
+python test.py --pretrained your_path/moblieNet_GNLL_120epoch.pt --IsGNLL True --modelType MoblieNetv2
 ```
 
 ### 5. The results will save in ```<module_path>/test_result/```
