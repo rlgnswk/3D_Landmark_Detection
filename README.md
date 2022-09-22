@@ -141,7 +141,32 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 
 # Visualization
 
+You can make visualization from the predicted landmarks and test figure 
 
+The visualization function is placed in ```visualization.py```. 
+
+See ```def save_result``` and ```def save_result_std```
+
+Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of it
+
+You can also make visualization from test module like:
+
+```python
+import test as T
+
+module = T.test_module(datasetPath = None, pertrained = './pretrained/model.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
+
+path = "/root/landmark_detection/test_image/FFHQ00002.png"
+img = Image.open(path)
+img = img.resize((256, 256))
+
+pred_ldmks = test_class.inference_img(img)
+#MSE model
+test_class._save_result(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result_std", 0)
+#GNLL model
+test_class._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result_std", 0)
+
+```
 
 -----------------
 
