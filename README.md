@@ -11,7 +11,7 @@ Note: I only conducted a shallow parameter search. Therefore, it may not be the 
 
 # Simple usage(Inference):
 
-### 1. Download the pretrained weights from [Here]()
+### 1. Download the pretrained weights from [Here](https://drive.google.com/drive/folders/1UvIamKlHrFx8sPeQBwvKkAK3xZ7j19j9?usp=sharing)
 
 ### 2. Put downloaded pretrained weights at ```<module_path>/pretrained/``` 
 
