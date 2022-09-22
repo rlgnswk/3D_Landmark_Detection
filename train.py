@@ -172,6 +172,7 @@ def main(args):
         else:
             saveUtils.save_visualization(crop_img, crop_ladmks, pred_ladmks, num_epoch)
         print_val_loss = 0
+        print_val_var = 0
 
 if __name__ == "__main__":
     main(args)
