@@ -49,8 +49,6 @@ for idx in range(len(img_list)):
         #plt.imshow(img.crop((resp["face_1"]['facial_area'][0], resp["face_1"]['facial_area'][1], resp["face_1"]['facial_area'][0]+ 256, resp["face_1"]['facial_area'][1] + 256)))
         #plt.savefig('bbox_image_here.png')
 
-        #print("????")
-        #exit(0)
         X_extra = (256 - (resp["face_1"]['facial_area'][2] - resp["face_1"]['facial_area'][0]))//2
 
         file.write(str(resp["face_1"]['facial_area'][0]- X_extra))

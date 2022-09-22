@@ -5,8 +5,7 @@ import random
 import os
 from torch.utils.tensorboard import SummaryWriter
 
-import AdaptationNet
-import ResNet34
+import resNet34
 import moblieNetV2
 import utils
 import data_load as data_load
@@ -89,8 +88,10 @@ def main(args):
     print_val_loss = 0
     print_val_var = 0
     print_interval = 10
+    total_iter = 0
     for num_epoch in range(args.numEpoch):
         for iter_num, item in enumerate(train_dataloader):
+            total_iter += 1
             #print(iter_num)
             img_GT, landmark_GT, crop_img, crop_ladmks, bbox_leftcorner = item
             
@@ -125,12 +126,12 @@ def main(args):
                 if args.IsGNLL == True:
                     print_train_var = print_train_var/print_interval
                     log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f] [Mean var: %.4f]" % (num_epoch, iter_num, print_train_loss, print_train_var)
-                    writer.add_scalar("Train Mean var/ iter", print_train_var, iter_num)
+                    writer.add_scalar("Train Mean var/ iter", print_train_var, total_iter)
                 else:
                     log = "Train: [Epoch %d][Iter %d] [Train Loss: %.4f]" % (num_epoch, iter_num, print_train_loss)
                 print(log)
                 saveUtils.save_log(log)
-                writer.add_scalar("Train Loss/ iter", print_train_loss, iter_num)
+                writer.add_scalar("Train Loss/ iter", print_train_loss, total_iter)
 
                 print_train_loss = 0
                 print_train_var = 0

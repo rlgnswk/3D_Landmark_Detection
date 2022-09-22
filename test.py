@@ -12,8 +12,7 @@ from retinaface import RetinaFace
 import matplotlib.pyplot as plt
 
 import moblieNetV2
-import AdaptationNet
-import ResNet34
+import resNet34
 import utils
 import data_load as data_load
 import math
