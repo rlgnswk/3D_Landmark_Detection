@@ -144,7 +144,7 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 
 You can make visualization from the predicted landmarks and test figure.
 
-The visualization function is placed in ```visualization.py```. See ```def save_result``` and ```def save_result_std```. Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of it
+The visualization function is placed in ```visualization.py```. Check ```def save_result``` and ```def save_result_std``` of it. Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of ```visualization.py```
 
 You can also make visualization from test module like:
 
