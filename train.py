@@ -74,11 +74,11 @@ def main(args):
     #model
     if args.modelType == "ResNet34":
         if args.IsGNLL == True:
-            model4Landmark = ResNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
+            model4Landmark = resNet34.ResNet34(output_param = 3).to(device) # x, y, sigma
             # https://pytorch.org/docs/stable/generated/torch.nn.GaussianNLLLoss.html # output = loss(input, target, var)
             lossFunction = nn.GaussianNLLLoss()
         else:
-            model4Landmark = ResNet34.ResNet34(output_param = 2).to(device) # x, y
+            model4Landmark = resNet34.ResNet34(output_param = 2).to(device) # x, y
             lossFunction = nn.MSELoss()
     elif args.modelType == "MoblieNetv2":
         if args.IsGNLL == True:

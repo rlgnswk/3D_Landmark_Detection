@@ -29,27 +29,22 @@ class test_module():
         self.modelType = modelType
         self.IsGNLL = IsGNLL
         
-        if self.IsGNLL == True:
-            self.model =  ResNet34.ResNet34(output_param = 3).to(self.device).eval() # x, y, sigma
-        else:
-            self.model = ResNet34.ResNet34(output_param = 2).to(self.device).eval() # x, y
-        self.model.load_state_dict(torch.load(args.pertrained))
-
         #model
         if self.modelType == "ResNet34":
             if self.IsGNLL == True:
-                model4Landmark = ResNet34.ResNet34(output_param = 3).to(self.device) # x, y, sigma
+                self.model = resNet34.ResNet34(output_param = 3).to(self.device).eval() # x, y, sigma
             else:
-                model4Landmark = ResNet34.ResNet34(output_param = 2).to(self.device) # x, y
+                self.model = resNet34.ResNet34(output_param = 2).to(self.device).eval() # x, y
         elif self.modelType == "MoblieNetv2":
             if self.IsGNLL == True:
-                model4Landmark = moblieNetV2.moblieNetV2(output_param = 3).to(self.device) # x, y, sigma
+                self.model = moblieNetV2.moblieNetV2(output_param = 3).to(self.device).eval() # x, y, sigma
             else:
-                model4Landmark = moblieNetV2.moblieNetV2(output_param = 2).to(self.device) # x, y
+                self.model = moblieNetV2.moblieNetV2(output_param = 2).to(self.device).eval() # x, y
         else:
             print("There is no proper model type.")
             raise ValueError
 
+        self.model.load_state_dict(torch.load(args.pertrained))
     def _save_result(self, crop_img, pred_ladmks, image_name, face_num):
         
         plt.clf()
