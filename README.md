@@ -167,6 +167,15 @@ test_class._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_re
 ```
 -----------------
 
+# Results
+
+Here is some good result of our module. Check ```test_image/``` and ```test_result/``` for the original image and more results.
+(The color of the landmark indicates confidence - the model trained by GNLL loss)
+
+![results](./figs/test_results.png)
+
+-----------------
+
 # Limitation
 
 Unfortunately, this module is not perfect. Here are some examples of failures. In my opinion, the reasons for failure are: first, out of the dataset (baby face, leftmost), second, face occlusion(middle), and third, face recognition or alignment failure(rightmost).
