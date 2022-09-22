@@ -139,6 +139,12 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 
 -----------------
 
+# Visualization
+
+
+
+-----------------
+
 # Reference
 
 [Fake It Till You Make It Face analysis in the wild using synthetic data alone (ICCV2021)](https://microsoft.github.io/FaceSynthetics/)
