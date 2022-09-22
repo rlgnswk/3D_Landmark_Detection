@@ -167,7 +167,7 @@ test_class._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_re
 ```
 -----------------
 
-# Limitaion
+# Limitation
 
 Unfortunately, this module is not perfect. Here are some examples of failures. In my opinion, the reasons for failure are: first, out of the dataset (baby face, leftmost), second, face occlusion(middle), and third, face recognition or alignment failure(rightmost).
 
