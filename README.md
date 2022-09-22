@@ -25,7 +25,7 @@ Take these example commands written below:
 
 ```.bash
 #General command
-python test.py --datasetPath <test dataset directory> --pretrained <pretrained weight paht>\
+python test.py --datasetPath <test dataset directory> --pretrained <pretrained weight path>\
     --saveDir <directory for saving test results> --gpu <gpu number>\
     --IsGNLL <whether to use models trained with GNLL loss(boolean, default=False)>\
     --modelType <modelType(ResNet34 or MoblieNetv2)>
