@@ -167,8 +167,7 @@ test_class._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_re
 
 # Result
 
-Here is some good result of our module. Check ```test_image/``` and ```test_result/``` for the original image and more results.
-(The color of the landmark indicates confidence - the model trained by GNLL loss)
+Here is some good result of our module. Check ```test_image/``` and ```test_result/``` for the original image and more results. The color of the landmark indicates confidence with the model trained by GNLL loss. The more red it is, the more reliable it is.
 
 ![results](./figs/test_results.png)
 
