@@ -55,7 +55,8 @@ python test.py --pretrained your_path/moblieNet_GNLL_120epoch.pt --IsGNLL True -
 
 import test as T
 
-module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
+module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', \
+                        saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
 # pred_ladmks = [[x1,y1],[x2,y2]...]
 
 info_1 = module.inference_imgFolder(your_img_folder)
@@ -141,22 +142,19 @@ python train.py --name <name of the experiment> --saveDir <directory for saving 
 
 # Visualization
 
-You can make visualization from the predicted landmarks and test figure 
+You can make visualization from the predicted landmarks and test figure.
 
-The visualization function is placed in ```visualization.py```. 
-
-See ```def save_result``` and ```def save_result_std```
-
-Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of it
+The visualization function is placed in ```visualization.py```. See ```def save_result``` and ```def save_result_std```. Or you can make the visualzation figure with by ```python visualization.py```. See the ```if __name__ == "__main__":``` of it
 
 You can also make visualization from test module like:
 
 ```python
 import test as T
 
-module = T.test_module(datasetPath = None, pertrained = './pretrained/model.pt', saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
-
-path = "/root/landmark_detection/test_image/FFHQ00002.png"
+module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', \
+                        saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
+                        
+path = "./test_image/FFHQ00002.png"
 img = Image.open(path)
 img = img.resize((256, 256))
 
