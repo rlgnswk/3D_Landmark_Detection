@@ -92,7 +92,7 @@ info_3 = module.inference_img(your_img) #input: PIL image
 
 ### 1. Download the dataset from [Here](https://github.com/microsoft/FaceSynthetics)
 
-### 2. Make bounding box for training:
+### 2. Make bounding box(face alignment) for training:
 
 #### 2.1 Make new directory named ```bbox_leftcorner_coord``` for saving bounding box coordinate in your ```your_dataset/```
 
