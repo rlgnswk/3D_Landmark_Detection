@@ -53,7 +53,7 @@ python test.py --pretrained your_path/moblieNet_GNLL_120epoch.pt --IsGNLL True -
 
 import test as T
 
-module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', \
+module = T.test_module(datasetPath = None, pertrained = './pretrained/pretrained_model.pt', \
                         saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
 # pred_ladmks = [[x1,y1],[x2,y2]...]
 
@@ -149,25 +149,28 @@ You can also make visualization from test module like:
 ```python
 import test as T
 
-module = T.test_module(datasetPath = None, pertrained = './pretrained/model_26.pt', \
+module = T.test_module(datasetPath = None, pertrained = './pretrained/pretrained_model.pt', \
                         saveDir = './test_result', IsGNLL = False, modelType = 'ResNet34')
                         
 path = "./test_image/FFHQ00002.png"
 img = Image.open(path)
 img = img.resize((256, 256))
 
-pred_ldmks = test_class.inference_img(img)
+pred_ldmks = module.inference_img(img)
 #MSE model
-test_class._save_result(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result_std", 0)
+module._save_result(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result", 0)
+# the results will be saved in "./_save_result.png" 
+
 #GNLL model
-test_class._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result_std", 0)
+module._save_result_std(img, np.expand_dims(pred_ldmks, axis = 0), "_save_result_std", 0)
+# the results will be saved in "./_save_result_std.png"
 
 ```
 -----------------
 
 # Result
 
-Here is some good result of our module. Check ```test_image/``` and ```test_result/``` for the original image and more results. The color of the landmark indicates confidence with the model trained by GNLL loss. The more red it is, the more reliable it is.
+Here is some good result of our module. Check ```test_image/``` and ```test_result/``` for the original test image and more results of them. The color of the landmark indicates confidence with the model trained by GNLL loss. The more red it is, the more reliable it is.
 
 ![results](./figs/test_results.png)
 
